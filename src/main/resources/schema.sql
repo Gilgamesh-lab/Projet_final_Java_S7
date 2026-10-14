@@ -1,26 +1,35 @@
-CREATE DATABASE IF NOT EXISTS Base_ALTN72
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS evaluation;
+DROP TABLE IF EXISTS incident;
+DROP TABLE IF EXISTS prestataire;
+DROP TABLE IF EXISTS equipement;
+DROP TABLE IF EXISTS station;
+DROP TABLE IF EXISTS utilisateur;
 
-USE Base_ALTN72;
+CREATE TABLE station (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    identifiant VARCHAR(100) NOT NULL UNIQUE,
+    nom VARCHAR(100) NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS station (
+CREATE TABLE equipement (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    reference VARCHAR(100) NOT NULL UNIQUE,
+    libelle VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    etat ENUM('En service', 'En panne', 'Hors service') NOT NULL DEFAULT 'En service',
+    station_id BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (station_id) REFERENCES station(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE prestataire (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     identifiant VARCHAR(100) NOT NULL UNIQUE,
     nom VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telephone VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS equipement (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    identifiant VARCHAR(100) NOT NULL,
-    reference VARCHAR(100) UNIQUE,
-    libelle VARCHAR(255) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    station_id BIGINT UNSIGNED NOT NULL,
-    FOREIGN KEY (station_id) REFERENCES station(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS incident (
+CREATE TABLE incident (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     identifiant VARCHAR(100) NOT NULL UNIQUE,
     equipement_id BIGINT UNSIGNED NOT NULL,
@@ -29,30 +38,26 @@ CREATE TABLE IF NOT EXISTS incident (
     statut ENUM('Nouveau', 'En cours', 'Résolu') NOT NULL DEFAULT 'Nouveau',
     prestataire_id BIGINT UNSIGNED DEFAULT NULL,
     date_resolution DATETIME DEFAULT NULL,
-    FOREIGN KEY (equipement_id) REFERENCES equipement(id) ON DELETE CASCADE,
-    FOREIGN KEY (prestataire_id) REFERENCES prestataire(id) ON DELETE SET NULL
+    FOREIGN KEY (equipement_id) REFERENCES equipement(id) ON DELETE RESTRICT,
+    FOREIGN KEY (prestataire_id) REFERENCES prestataire(id) ON DELETE RESTRICT,
+    CONSTRAINT ck_incident_resolution_apres_ouverture
+        CHECK (date_resolution IS NULL OR date_resolution >= date_ouverture)
 );
 
-CREATE TABLE IF NOT EXISTS prestataire (
+CREATE TABLE evaluation (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    identifiant VARCHAR(100) NOT NULL UNIQUE,
-    nom VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telephone VARCHAR(20) NOT NULL,
-);
-
-CREATE TABLE IF NOT EXISTS evaluation (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    incident varchar(100) NOT NULL UNIQUE,
-    note INT NOT NULL CHECK (note >= 0 AND note <= 5),
+    incident_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    note INT NOT NULL,
     commentaire TEXT DEFAULT NULL,
     date_evaluation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (incident_id) REFERENCES incident(id) ON DELETE CASCADE,
+    CONSTRAINT ck_evaluation_note CHECK (note BETWEEN 1 AND 5)
 );
 
-CREATE TABLE IF NOT EXISTS utilisateur (
+CREATE TABLE utilisateur (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     identifiant VARCHAR(100) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
-    profil VARCHAR(50) NOT NULL,
+    profil ENUM('Responsable d''exploitation', 'Agent') NOT NULL
 );
