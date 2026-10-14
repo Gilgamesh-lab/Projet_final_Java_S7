@@ -2,6 +2,8 @@ package altn72.tpfilrouge.modele;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "programmeur")
 public class Programmeur {
@@ -84,4 +86,28 @@ public class Programmeur {
         this.salaire = salaire;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Programmeur that = (Programmeur) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Programmeur{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", prenom='" + prenom + '\'' +
+                ", adresse='" + adresse + '\'' +
+                ", langageExpertise='" + langageExpertise + '\'' +
+                ", livrePrefere='" + livrePrefere + '\'' +
+                ", salaire=" + salaire +
+                '}';
+    }
 }

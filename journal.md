@@ -1,5 +1,7 @@
 # Journal – TP Fil Rouge 5 (ALTN72) – Couche "V" : Thymeleaf
 
+![img.png](img.png)
+
 Réponses aux questions du TP 5. Code de référence : ce projet.
 
 ## 5.2 Configuration

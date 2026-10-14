@@ -1,0 +1,54 @@
+package altn72.tpfilrouge.modele;
+
+import jakarta.persistence.*;
+
+import java.util.Objects;
+
+@Entity
+@Table(name = "station")
+public class Station {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_station", nullable = false)
+    private Integer id;
+
+    @Column(name = "nom", nullable = false, length = 100)
+    private String nom;
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Station station = (Station) o;
+        return Objects.equals(id, station.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Station{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                '}';
+    }
+}
