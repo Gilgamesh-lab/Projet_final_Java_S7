@@ -4,15 +4,16 @@
 
 <!--/* Bandeau commun à inclure en haut de chaque page : th:replace="~{fragments/entete :: entete}" */-->
 <nav th:fragment="entete" class="navbar navbar-expand bg-dark navbar-dark px-3 mb-4">
-    <a class="navbar-brand" th:href="@{/tableau-de-bord}">Supervision</a>
+    <a class="navbar-brand" th:href="@{/}">Supervision</a>
     <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link" th:href="@{/tableau-de-bord}">Tableau de bord</a></li>
+        <!--/* Lien masqué pour l'agent ; la route reste de toute façon protégée côté serveur */-->
+        <li class="nav-item" th:if="${session.utilisateur?.responsable}"><a class="nav-link" th:href="@{/tableau-de-bord}">Tableau de bord</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/stations}">Équipements</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/incidents/historique}">Historique</a></li>
     </ul>
     <span class="navbar-text text-light">
         Bonjour <span th:text="${session.utilisateur?.prenom}">Camille</span>
-        (<span th:text="${session.utilisateur?.profil}">Responsable d'exploitation</span>)
+        (<span th:text="${session.utilisateur?.profil?.libelle}">Responsable d'exploitation</span>)
         | <a class="link-light" th:href="@{/logout}">Déconnectez-vous</a>
     </span>
 </nav>
