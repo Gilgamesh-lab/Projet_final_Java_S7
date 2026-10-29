@@ -9,14 +9,20 @@ public class Prestaire {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_prestaire", nullable = false)
+    @Column(name = "id", nullable = false)
     private Integer id;
+
+    @Column(name = "identifiant", nullable = false, length = 100)
+    private String identifiant;
 
     @Column(name = "nom", nullable = false, length = 100)
     private String nom;
 
-    @Column(name = "nom", nullable = false, length = 100)
-    private String contact;
+    @Column(name = "email", nullable = false, length = 100)
+    private String email;
+
+    @Column(name = "telephone", nullable = false, length = 20)
+    private String telephone;
 
     @Override
     public boolean equals(Object o) {
@@ -34,8 +40,10 @@ public class Prestaire {
     public String toString() {
         return "Prestaire{" +
                 "id=" + id +
+                ", identifiant='" + identifiant + '\'' +
                 ", nom='" + nom + '\'' +
-                ", contact='" + contact + '\'' +
+                ", email='" + email + '\'' +
+                ", telephone='" + telephone + '\'' +
                 '}';
     }
 }

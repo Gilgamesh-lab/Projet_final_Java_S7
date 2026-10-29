@@ -1,13 +1,13 @@
 package altn72.tpfilrouge.service;
 
+import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Programmeur;
-import altn72.tpfilrouge.modele.ProgrammeurRepository;
+import altn72.tpfilrouge.modele.EquipementRepository;
 // import jakarta.transaction.Transactional;
 // 4.6.2 -- On utilise le @Transactional de Spring (et non celui de Jakarta) : c'est celui que Spring gère nativement,
 // et il offre plus d'options (readOnly, rollbackFor, propagation...).
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,22 +15,22 @@ import java.util.Optional;
 
 // Cette classe est dans le package "service" (et non plus dans "controleur")
 @Service
-public class ProgrammeurService {
+public class EquipementService {
 
 //    @Autowired
 //    private ProgrammeurRepository programmeurRepository;
 
     // Injection de dépendance via le constructeur -- DÉBUT //
-    private final ProgrammeurRepository programmeurRepository;
-    public ProgrammeurService(ProgrammeurRepository programmeurRepository){ this.programmeurRepository = programmeurRepository;}
+    private final EquipementRepository equipementRepository;
+    public EquipementService(){ this.equipementRepository = equipementRepository;}
     // Injection de dépendance via le constructeur -- FIN //
 
-    public List<Programmeur> getProgrammeurs() {
-        return programmeurRepository.findAll();
+    public List<Equipement> getProgrammeurs() {
+        return equipementRepository.findAll();
     }
 
     public Optional<Programmeur> getUnProgrammeur(Integer idProgrammeur) {
-        Optional<Programmeur> unProgrammeur = programmeurRepository.findById(idProgrammeur);
+        Optional<Programmeur> unProgrammeur = equipementRepository.findById(idProgrammeur);
 
         // Ancienne version : on lançait une exception si l'id n'existait pas
         // Une exception non gérée devient une réponse HTTP 500 (erreur SERVEUR), alors que l'erreur vient ici du CLIENT (id inexistant)
@@ -51,8 +51,8 @@ public class ProgrammeurService {
         // Attention : depuis Spring Data JPA 3, deleteById() sur un id inexistant ne lève plus d'exception, il ne fait rien
         // Sans ce test, on ne pourrait donc pas répondre 404
         // 5.10.3 -- Le service ne connaît rien de la vue : il renvoie seulement true/false. C'est le contrôleur qui décide de rediriger vers la liste ou de signaler le 404.
-        if (!programmeurRepository.existsById(idProgrammeur)) return false;
-        programmeurRepository.deleteById(idProgrammeur);
+        if (!equipementRepository.existsById(idProgrammeur)) return false;
+        equipementRepository.deleteById(idProgrammeur);
         return true;
     }
 
@@ -66,7 +66,7 @@ public class ProgrammeurService {
         // au lieu d'en créer un nouveau. Un POST doit toujours créer : l'id est généré par la base
         programmeur.setId(null);
         //programmeurRepository.save(programmeur);
-        return programmeurRepository.save(programmeur);
+        return equipementRepository.save(programmeur);
     }
 
     // @Transactional : lecture + modification forment une seule unité de travail (tout ou rien)
@@ -76,7 +76,7 @@ public class ProgrammeurService {
         // Ancienne version : void + orElseThrow() sans argument (NoSuchElementException => 500 si id inexistant).
         // Avec map(), on ne modifie que si le programmeur existe, sinon on renvoie un Optional vide (=> 404 dans le contrôleur).
         // 5.12.2 -- Les nouvelles données viennent maintenant d'un formulaire HTML (@ModelAttribute) et non plus d'un JSON (@RequestBody) : le service n'est pas modifié.
-        return programmeurRepository.findById(idProgrammeur).map(programmeurToModify -> {
+        return equipementRepository.findById(idProgrammeur).map(programmeurToModify -> {
             BeanUtils.copyProperties(programmeurModified, programmeurToModify, "id");   // "id" ignoré : l'id du JSON ne doit jamais remplacer celui de l'URL
             //programmeurRepository.save(programmeurToModify);    // Impact de @Transactional. Pourquoi?
             // Réponse : dans la transaction, l'objet est "managed" par Hibernate. Au commit, il compare l'objet à son état d'origine
