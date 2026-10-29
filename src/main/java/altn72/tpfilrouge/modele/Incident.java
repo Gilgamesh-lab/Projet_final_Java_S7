@@ -13,27 +13,30 @@ public class Incident {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_incident", nullable = false)
+    @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "identifiant", nullable = false, unique = true, length = 100)
+    private String identifiant;
+
     @OneToMany
-    @JoinColumn(name = "id_equipement", nullable = false)
+    @JoinColumn(name = "equipement_id", nullable = false)
     private ArrayList<Equipement> equipement;
 
-    @Column(name = "description", nullable = true, length = 250)
+    @Column(name = "description", nullable = false, length = 250)
     private String description;
 
-    @Column(name = "horaire_ouverture", nullable = false, length = 100)
+    @Column(name = "date_ouverture", nullable = false, length = 100)
     private LocalDateTime horaireOuverture;
 
     @Column(name = "statut", nullable = false, length = 100)
     private String statut;
 
     @ManyToOne
-    @Column(name = "prestataire", nullable = true, length = 100)
+    @Column(name = "prestataire_id", nullable = false, length = 100)
     private Prestaire prestataire;
 
-    @Column(name = "horaire_resolution", nullable = true, length = 100)
+    @Column(name = "date_resolution", nullable = true, length = 100)
     private LocalDateTime horaireResolution;
 
     @Override

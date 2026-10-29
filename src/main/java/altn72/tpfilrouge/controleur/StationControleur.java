@@ -1,8 +1,8 @@
 package altn72.tpfilrouge.controleur;
 
+import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Programmeur;
-import altn72.tpfilrouge.service.ProgrammeurService;
-import org.springframework.beans.factory.annotation.Autowired;
+import altn72.tpfilrouge.service.EquipementService;
 // 5.4 -- Imports utiles à la couche "V" : Controller, Model (données transmises à la vue), HttpStatus et ResponseStatusException (erreur 404 si l'id n'existe pas).
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -21,15 +21,15 @@ import java.util.List;
 //@RestController
 @Controller
 //@RequestMapping("/api")
-@RequestMapping("/programmeurs")
-public class ProgrammeurControleur {
+@RequestMapping("/stations")
+public class StationControleur {
 
 //    @Autowired
 //    ProgrammeurService programmeurService;
 
     // Injection de dépendance via le constructeur -- DÉBUT //
-    private final ProgrammeurService programmeurService;
-    public ProgrammeurControleur(ProgrammeurService programmeurService) { this.programmeurService = programmeurService;}
+    private final EquipementService equipementService;
+    public StationControleur(EquipementService equipementService) { this.equipementService = equipementService;}
     // Injection de dépendance via le constructeur -- FIN //
 
     // Ancienne route : @GetMapping("/programmeurs"). Le nom de la ressource est désormais dans le @RequestMapping de la classe.
@@ -40,14 +40,14 @@ public class ProgrammeurControleur {
     // Le 1er paramètre d'addAttribute ("programmeurs") est le nom sous lequel la vue retrouvera la liste : ${programmeurs} dans listeProgrammeurs.html (cf. 5.8).
     @GetMapping
 //    public ResponseEntity<List<Programmeur>> afficherInfosProgrammeurs(){    // Sans Thymeleaf (réponse JSON, cf. 4.9)
-    public String afficherInfosProgrammeurs(Model model){    // Avec Thymeleaf
-        List<Programmeur> liste = programmeurService.getProgrammeurs();
+    public String afficherInfosStations(Model model){    // Avec Thymeleaf
+        List<Station> liste = equipementService.getProgrammeurs();
 //        return ResponseEntity.ok(liste);
         // 5.8 -- Première manipulation (faite en séance) : transmettre à la vue le prénom du DERNIER programmeur de la liste.
         // Dans le template : <span th:text="${prenomDernierProgrammeur}"></span>. Remplacée ensuite par la liste complète (5.9).
 //        model.addAttribute("prenomDernierProgrammeur", liste.get(liste.size() - 1).getPrenom());
-        model.addAttribute("programmeurs", liste);
-        return "listeProgrammeurs";    // Nom du fichier HTML à charger, sans l'extension .html : src/main/resources/templates/listeProgrammeurs.html (cf. 5.3)
+        model.addAttribute("stations", liste);
+        return "listeStations";    // Nom du fichier HTML à charger, sans l'extension .html : src/main/resources/templates/listeProgrammeurs.html (cf. 5.3)
     }
 
     // Ancienne route : /unProgrammeur/{idProgrammeur}. "unProgrammeur" n'apporte rien : le verbe GET dit déjà "lire",
@@ -63,7 +63,7 @@ public class ProgrammeurControleur {
 //                .map(ResponseEntity::ok)                          // présent : 200 OK + programmeur dans le corps
 //                .orElse(ResponseEntity.notFound().build());       // absent : 404 Not Found, sans corps
     public String afficherUnProgrammeur(@PathVariable("idProgrammeur") Integer idProg, Model model) {
-        Programmeur programmeur = programmeurService.getUnProgrammeur(idProg)
+        Programmeur programmeur = equipementService.getUnProgrammeur(idProg)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Le programmeur dont l'id est " + idProg + " n'existe pas"));
         model.addAttribute("programmeurToUpdate", programmeur);
@@ -93,7 +93,7 @@ public class ProgrammeurControleur {
 //        if (programmeurService.supprimerProgrammeur(idProg)) return ResponseEntity.noContent().build();
 //        return ResponseEntity.notFound().build();
     public String deleteProgrammeur(@PathVariable("idProgrammeur") Integer idProg) {
-        if (!programmeurService.supprimerProgrammeur(idProg)) {
+        if (!equipementService.supprimerProgrammeur(idProg)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Le programmeur dont l'id est " + idProg + " n'existe pas");
         }
@@ -115,7 +115,7 @@ public class ProgrammeurControleur {
 //                .toUri();
 //        return ResponseEntity.created(location).body(programmeurCree);
     public String creerProgrammeur(@ModelAttribute Programmeur programmeur){
-        programmeurService.ajouterProgrammeur(programmeur);
+        equipementService.ajouterProgrammeur(programmeur);
         return "redirect:/programmeurs";
     }
 
@@ -131,7 +131,7 @@ public class ProgrammeurControleur {
 //                .map(ResponseEntity::ok)
 //                .orElse(ResponseEntity.notFound().build());
     public String modifierProgrammeur(@PathVariable Integer idProgrammeur,@ModelAttribute Programmeur programmeurModified ){
-        if (programmeurService.modifierProgrammeur(idProgrammeur,programmeurModified).isEmpty()) {
+        if (equipementService.modifierProgrammeur(idProgrammeur,programmeurModified).isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Le programmeur dont l'id est " + idProgrammeur + " n'existe pas");
         }

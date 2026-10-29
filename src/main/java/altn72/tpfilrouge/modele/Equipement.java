@@ -10,21 +10,24 @@ public class Equipement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_equipement", nullable = false)
+    @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "description", nullable = true, length = 250)
+    @Column(name = "reference", nullable = false, length = 100)
+    private String reference;
+
+    @Column(name = "libelle", nullable = false, length = 255)
     private String description;
 
-    @Column(name = "type", nullable = false, length = 100)
+    @Column(name = "type", nullable = false, length = 50)
     private String type;
 
-    @OneToOne
-    @JoinColumn(name = "id_station", nullable = false)
-    private Station station;
+    @Column(name = "etat", nullable = false)
+    private Etat etat;
 
-    @Column(name = "etat_fonctionnement", nullable = false, length = 100)
-    private Boolean etatFonctionnement;
+    @OneToOne
+    @JoinColumn(name = "station_id", nullable = false)
+    private Station station;
 
     @Override
     public boolean equals(Object o) {
@@ -42,10 +45,11 @@ public class Equipement {
     public String toString() {
         return "Equipement{" +
                 "id=" + id +
+                ", reference='" + reference + '\'' +
                 ", description='" + description + '\'' +
                 ", type='" + type + '\'' +
+                ", etat=" + etat +
                 ", station=" + station +
-                ", etatFonctionnement=" + etatFonctionnement +
                 '}';
     }
 }

@@ -10,19 +10,21 @@ import java.util.Objects;
 public class Evaluation {
 
     @Id
-    @JoinColumn(name = "id_incident", nullable = false)
+    @JoinColumn(name = "id", nullable = false)
     private Integer id;
 
-
+    @OneToOne
+    @Column(name = "incident_id", nullable = false, length = 100)
+    private Incident incident_id;
 
     @Column(name = "note", nullable = false, length = 100)
     private int note;
 
-    @Column(name = "commentaires", nullable = false, length = 100)
-    private String commentaires;
+    @Column(name = "commentaire", nullable = false, length = 100)
+    private String commentaire;
 
-    @Column(name = "date", nullable = false, length = 100)
-    private Date date;
+    @Column(name = "date_evaluation", nullable = false, length = 100)
+    private Date date_evaluation;
 
     @Override
     public boolean equals(Object o) {
@@ -40,9 +42,10 @@ public class Evaluation {
     public String toString() {
         return "Evaluation{" +
                 "id=" + id +
+                ", incident_id=" + incident_id +
                 ", note=" + note +
-                ", commentaires='" + commentaires + '\'' +
-                ", date=" + date +
+                ", commentaire='" + commentaire + '\'' +
+                ", date_evaluation=" + date_evaluation +
                 '}';
     }
 }
