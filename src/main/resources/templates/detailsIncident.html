@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Détail de l'incident</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/entete :: entete}"></div>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Incident INC-006</h1>
+        <span class="badge bg-primary fs-6">En cours — pris en charge</span>
+    </div>
+
+    <div class="row g-4">
+        <!--/* F5 : détail de l'incident */-->
+        <div class="col-md-7">
+            <div class="card h-100">
+                <div class="card-header">Informations</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Description</dt>
+                        <dd class="col-sm-8">Câble de traction à contrôler</dd>
+                        <dt class="col-sm-4">Équipement</dt>
+                        <dd class="col-sm-8"><a href="#">ASC-001 — Ascenseur quai A</a></dd>
+                        <dt class="col-sm-4">Station</dt>
+                        <dd class="col-sm-8">Gare Centrale</dd>
+                        <dt class="col-sm-4">Ouverture</dt>
+                        <dd class="col-sm-8">25/10/2026 22:05</dd>
+                        <dt class="col-sm-4">Durée d'ouverture</dt>
+                        <dd class="col-sm-8">3 j 8 h</dd>
+                        <dt class="col-sm-4">Prestataire</dt>
+                        <dd class="col-sm-8">Ascenseurs Dupont</dd>
+                        <dt class="col-sm-4">Résolution</dt>
+                        <dd class="col-sm-8">—</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!--/* Actions réservées au responsable d'exploitation, masquées si l'incident est résolu (RG5) */-->
+        <div class="col-md-5">
+            <div class="card mb-4">
+                <div class="card-header">Affecter / réaffecter un prestataire (F7)</div>
+                <div class="card-body">
+                    <form method="post" class="d-flex gap-2">
+                        <select name="prestataire" class="form-select">
+                            <option selected>Ascenseurs Dupont</option>
+                            <option>TechniServices</option>
+                            <option>MécaTrans</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Affecter</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">Résolution (F8)</div>
+                <div class="card-body">
+                    <form method="post">
+                        <button type="submit" class="btn btn-success w-100">Déclarer l'incident résolu</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Modifier la description (F6)</div>
+                <div class="card-body">
+                    <form method="post">
+                        <textarea name="description" rows="3" class="form-control mb-2">Câble de traction à contrôler</textarea>
+                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--/* F5 / F10 : évaluation éventuelle, affichée une fois l'incident résolu */-->
+    <div class="card mt-4">
+        <div class="card-header">Évaluation du prestataire</div>
+        <div class="card-body">
+            <p class="text-muted mb-0">L'évaluation sera possible une fois l'incident résolu.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
