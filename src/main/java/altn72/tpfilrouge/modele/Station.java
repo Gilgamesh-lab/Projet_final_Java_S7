@@ -11,10 +11,29 @@ public class Station {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
+
+    @Column(name = "identifiant", nullable = false, unique = true, length = 100)
+    private String identifiant;
 
     @Column(name = "nom", nullable = false, length = 100)
     private String nom;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIdentifiant() {
+        return identifiant;
+    }
+
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
+    }
 
     public String getNom() {
         return nom;
@@ -22,14 +41,6 @@ public class Station {
 
     public void setNom(String nom) {
         this.nom = nom;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     @Override
@@ -48,6 +59,7 @@ public class Station {
     public String toString() {
         return "Station{" +
                 "id=" + id +
+                ", identifiant='" + identifiant + '\'' +
                 ", nom='" + nom + '\'' +
                 '}';
     }

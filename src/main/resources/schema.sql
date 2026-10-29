@@ -16,7 +16,7 @@ CREATE TABLE equipement (
                             reference VARCHAR(100) NOT NULL UNIQUE,
                             libelle VARCHAR(255) NOT NULL,
                             type VARCHAR(50) NOT NULL,
-                            etat ENUM('En service', 'En panne', 'Hors service') NOT NULL DEFAULT 'En service',
+                            etat ENUM('EN_SERVICE', 'EN_PANNE', 'HORS_SERVICE') NOT NULL DEFAULT 'EN_SERVICE',
                             station_id BIGINT UNSIGNED NOT NULL,
                             FOREIGN KEY (station_id) REFERENCES station(id) ON DELETE RESTRICT
 );
@@ -35,7 +35,7 @@ CREATE TABLE incident (
                           equipement_id BIGINT UNSIGNED NOT NULL,
                           description TEXT NOT NULL,
                           date_ouverture DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                          statut ENUM('Nouveau', 'En cours', 'Résolu') NOT NULL DEFAULT 'Nouveau',
+                          statut ENUM('NOUVEAU', 'EN_COURS', 'RESOLU') NOT NULL DEFAULT 'NOUVEAU',
                           prestataire_id BIGINT UNSIGNED DEFAULT NULL,
                           date_resolution DATETIME DEFAULT NULL,
                           FOREIGN KEY (equipement_id) REFERENCES equipement(id) ON DELETE RESTRICT,
@@ -59,5 +59,5 @@ CREATE TABLE utilisateur (
                              identifiant VARCHAR(100) NOT NULL UNIQUE,
                              mot_de_passe VARCHAR(255) NOT NULL,
                              prenom VARCHAR(100) NOT NULL,
-                             profil ENUM('Responsable d''exploitation', 'Agent') NOT NULL
+                             profil ENUM('RESPONSABLE', 'AGENT') NOT NULL
 );

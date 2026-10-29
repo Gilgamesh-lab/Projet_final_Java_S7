@@ -3,8 +3,6 @@ package altn72.tpfilrouge.modele;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -14,30 +12,96 @@ public class Incident {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "identifiant", nullable = false, unique = true, length = 100)
     private String identifiant;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "equipement_id", nullable = false)
-    private ArrayList<Equipement> equipement;
+    private Equipement equipement;
 
-    @Column(name = "description", nullable = false, length = 250)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "date_ouverture", nullable = false, length = 100)
-    private LocalDateTime horaireOuverture;
+    @Column(name = "date_ouverture", nullable = false)
+    private LocalDateTime dateOuverture;
 
-    @Column(name = "statut", nullable = false, length = 100)
-    private String statut;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut", nullable = false)
+    private Statut statut;
 
+    // Un incident démarre sans prestataire (RG1)
     @ManyToOne
-    @Column(name = "prestataire_id", nullable = false, length = 100)
-    private Prestaire prestataire;
+    @JoinColumn(name = "prestataire_id")
+    private Prestataire prestataire;
 
-    @Column(name = "date_resolution", nullable = true, length = 100)
-    private LocalDateTime horaireResolution;
+    @Column(name = "date_resolution")
+    private LocalDateTime dateResolution;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIdentifiant() {
+        return identifiant;
+    }
+
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
+    }
+
+    public Equipement getEquipement() {
+        return equipement;
+    }
+
+    public void setEquipement(Equipement equipement) {
+        this.equipement = equipement;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getDateOuverture() {
+        return dateOuverture;
+    }
+
+    public void setDateOuverture(LocalDateTime dateOuverture) {
+        this.dateOuverture = dateOuverture;
+    }
+
+    public Statut getStatut() {
+        return statut;
+    }
+
+    public void setStatut(Statut statut) {
+        this.statut = statut;
+    }
+
+    public Prestataire getPrestataire() {
+        return prestataire;
+    }
+
+    public void setPrestataire(Prestataire prestataire) {
+        this.prestataire = prestataire;
+    }
+
+    public LocalDateTime getDateResolution() {
+        return dateResolution;
+    }
+
+    public void setDateResolution(LocalDateTime dateResolution) {
+        this.dateResolution = dateResolution;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -55,12 +119,13 @@ public class Incident {
     public String toString() {
         return "Incident{" +
                 "id=" + id +
+                ", identifiant='" + identifiant + '\'' +
                 ", equipement=" + equipement +
                 ", description='" + description + '\'' +
-                ", horaireOuverture=" + horaireOuverture +
-                ", statut='" + statut + '\'' +
+                ", dateOuverture=" + dateOuverture +
+                ", statut=" + statut +
                 ", prestataire=" + prestataire +
-                ", horaireResolution=" + horaireResolution +
+                ", dateResolution=" + dateResolution +
                 '}';
     }
 }

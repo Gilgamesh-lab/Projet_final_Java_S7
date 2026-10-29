@@ -1,8 +1,8 @@
 package altn72.tpfilrouge.modele;
+
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -10,21 +10,63 @@ import java.util.Objects;
 public class Evaluation {
 
     @Id
-    @JoinColumn(name = "id", nullable = false)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
+    // Une seule évaluation par incident (RG8)
     @OneToOne
-    @Column(name = "incident_id", nullable = false, length = 100)
-    private Incident incident_id;
+    @JoinColumn(name = "incident_id", nullable = false, unique = true)
+    private Incident incident;
 
-    @Column(name = "note", nullable = false, length = 100)
+    @Column(name = "note", nullable = false)
     private int note;
 
-    @Column(name = "commentaire", nullable = false, length = 100)
+    @Column(name = "commentaire", columnDefinition = "TEXT")
     private String commentaire;
 
-    @Column(name = "date_evaluation", nullable = false, length = 100)
-    private Date date_evaluation;
+    @Column(name = "date_evaluation", nullable = false)
+    private LocalDateTime dateEvaluation;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Incident getIncident() {
+        return incident;
+    }
+
+    public void setIncident(Incident incident) {
+        this.incident = incident;
+    }
+
+    public int getNote() {
+        return note;
+    }
+
+    public void setNote(int note) {
+        this.note = note;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public void setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+    }
+
+    public LocalDateTime getDateEvaluation() {
+        return dateEvaluation;
+    }
+
+    public void setDateEvaluation(LocalDateTime dateEvaluation) {
+        this.dateEvaluation = dateEvaluation;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -42,10 +84,10 @@ public class Evaluation {
     public String toString() {
         return "Evaluation{" +
                 "id=" + id +
-                ", incident_id=" + incident_id +
+                ", incident=" + incident +
                 ", note=" + note +
                 ", commentaire='" + commentaire + '\'' +
-                ", date_evaluation=" + date_evaluation +
+                ", dateEvaluation=" + dateEvaluation +
                 '}';
     }
 }
