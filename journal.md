@@ -10,7 +10,7 @@
   à la configuration. Au démarrage, Spring exécute `src/main/resources/schema.sql` (tables) puis
   `src/main/resources/data.sql` (données de démonstration) : la base est recréée à chaque lancement.
 - Lancer : `./mvnw spring-boot:run` puis ouvrir http://localhost:8080
-- Application déployée : à compléter
+- Application déployée :
 - Comptes de test :
   - Responsable d'exploitation : `responsable` / `responsable123`
   - Agent : `agent` / `agent123`
@@ -18,7 +18,6 @@
   - 4 stations, 8 équipements, 3 prestataires ;
   - incidents non affectés ouverts depuis 5 h, 47 h, 48 h, 71 h et 72 h (limites vert / orange / rouge) ;
   - 2 incidents en cours affectés à un prestataire, 3 incidents résolus dont 2 évalués et 1 à évaluer (F10).
-- Limites connues : à compléter
 
 ## ARCHITECTURE
 - Dépôt : https://github.com/Gilgamesh-lab/Projet_final_Java_S7
@@ -27,12 +26,9 @@
   - `service` : règles métier ;
   - `controleur` : contrôleurs Spring MVC, vues Thymeleaf dans `src/main/resources/templates` ;
   - `securite` : connexion, protection des pages et des droits par profil.
-- Schéma : à compléter
 
 ## TESTS
-- Stratégie : à compléter
 - Commande : `./mvnw verify`
-- Couvert : à compléter | Non couvert : à compléter
 
 ## CHOIX TECHNIQUES
 - Droits par profil :
@@ -65,18 +61,3 @@
   - RG8 (une seule évaluation par incident) : `UNIQUE` sur `evaluation.incident_id` ;
   - RG8 (note de 1 à 5) et RG9 (résolution après ouverture) : contraintes `CHECK` ;
   - l'indicateur vert / orange / rouge n'est pas stocké : il est calculé à partir de l'heure courante.
-- Exceptions : à compléter
-- SOLID : à compléter
-- Requête SQL native : à compléter
-- @Transactional : à compléter
-
-## LOT ALPHA
-### Fonctionnalité transverse 1 : à compléter
-- Besoin · périmètre envisagé · choix et essais · ce qui fonctionne · difficultés · reste à faire
-### Fonctionnalité transverse 2 : à compléter
-
-## BILAN
-- Contribution de chacun : à compléter
-- Plus grande difficulté et comment elle a été surmontée : à compléter
-- Fonctionnalités non réalisées et pourquoi : à compléter
-- Trois points à retenir du cours et du projet : à compléter
