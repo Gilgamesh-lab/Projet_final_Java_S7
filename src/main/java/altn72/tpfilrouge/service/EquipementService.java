@@ -29,8 +29,8 @@ public class EquipementService {
         return equipementRepository.findAll();
     }
 
-    public Optional<Programmeur> getUnProgrammeur(Integer idProgrammeur) {
-        Optional<Programmeur> unProgrammeur = equipementRepository.findById(idProgrammeur);
+    public Optional<Equipement> getUnProgrammeur(Long idProgrammeur) {
+        Optional<Equipement> unProgrammeur = equipementRepository.findById(idProgrammeur);
 
         // Ancienne version : on lançait une exception si l'id n'existait pas
         // Une exception non gérée devient une réponse HTTP 500 (erreur SERVEUR), alors que l'erreur vient ici du CLIENT (id inexistant)
@@ -61,7 +61,7 @@ public class EquipementService {
     // l'en-tête Location de la réponse 201 (l'URL de la nouvelle ressource)
     // 5.11 -- Avec Thymeleaf ce retour n'est plus exploité (le contrôleur redirige simplement vers la liste). On le garde tel quel :
     // la couche Service n'a pas à changer quand le type de client change (JSON ou page HTML) : c'est tout l'intérêt de la séparation en couches.
-    public Programmeur ajouterProgrammeur(Programmeur programmeur) {
+    public Station ajouterProgrammeur(Programmeur programmeur) {
         // On force l'id à null : si le client envoyait un id existant dans le JSON, save() MODIFIERAIT ce programmeur
         // au lieu d'en créer un nouveau. Un POST doit toujours créer : l'id est généré par la base
         programmeur.setId(null);

@@ -1,9 +1,11 @@
 package altn72.tpfilrouge.controleur;
 
 import altn72.tpfilrouge.modele.Equipement;
-import altn72.tpfilrouge.modele.Programmeur;
+import altn72.tpfilrouge.modele.Station;
 import altn72.tpfilrouge.service.EquipementService;
 // 5.4 -- Imports utiles à la couche "V" : Controller, Model (données transmises à la vue), HttpStatus et ResponseStatusException (erreur 404 si l'id n'existe pas).
+import altn72.tpfilrouge.service.StationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,8 +30,8 @@ public class StationControleur {
 //    ProgrammeurService programmeurService;
 
     // Injection de dépendance via le constructeur -- DÉBUT //
-    private final EquipementService equipementService;
-    public StationControleur(EquipementService equipementService) { this.equipementService = equipementService;}
+    @Autowired
+    private StationService stationService;
     // Injection de dépendance via le constructeur -- FIN //
 
     // Ancienne route : @GetMapping("/programmeurs"). Le nom de la ressource est désormais dans le @RequestMapping de la classe.
@@ -41,7 +43,7 @@ public class StationControleur {
     @GetMapping
 //    public ResponseEntity<List<Programmeur>> afficherInfosProgrammeurs(){    // Sans Thymeleaf (réponse JSON, cf. 4.9)
     public String afficherInfosStations(Model model){    // Avec Thymeleaf
-        List<Station> liste = equipementService.getProgrammeurs();
+        List<Station> liste = stationService.getStations();
 //        return ResponseEntity.ok(liste);
         // 5.8 -- Première manipulation (faite en séance) : transmettre à la vue le prénom du DERNIER programmeur de la liste.
         // Dans le template : <span th:text="${prenomDernierProgrammeur}"></span>. Remplacée ensuite par la liste complète (5.9).
@@ -57,27 +59,27 @@ public class StationControleur {
     // 5.12 -- Cette route sert maintenant à afficher la page "detailsProgrammeur" : un formulaire PRÉREMPLI avec les données du programmeur (bouton "Modifiez").
     // Le programmeur est déposé dans le Model sous le nom "programmeurToUpdate" : c'est le nom utilisé par th:object dans le template.
     // Le 404 est conservé : ResponseStatusException produit la même réponse qu'avant, mais sous forme de page d'erreur (cf. server.error.include-message dans application.properties).
-    @GetMapping("/{idProgrammeur}")
+    @GetMapping("/{idStation}")
 //    public ResponseEntity<Programmeur> afficherUnProgrammeur(@PathVariable("idProgrammeur") Integer idProg) {
 //        return programmeurService.getUnProgrammeur(idProg)
 //                .map(ResponseEntity::ok)                          // présent : 200 OK + programmeur dans le corps
 //                .orElse(ResponseEntity.notFound().build());       // absent : 404 Not Found, sans corps
-    public String afficherUnProgrammeur(@PathVariable("idProgrammeur") Integer idProg, Model model) {
-        Programmeur programmeur = equipementService.getUnProgrammeur(idProg)
+    public String afficherUneStation(@PathVariable("idStation") Long idStation, Model model) {
+        Station station = stationService.getUneStation(idStation)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Le programmeur dont l'id est " + idProg + " n'existe pas"));
-        model.addAttribute("programmeurToUpdate", programmeur);
-        return "detailsProgrammeur";
+                        HttpStatus.NOT_FOUND, "La station dont l'id est " + idStation + " n'existe pas"));
+        model.addAttribute("stationToUpdate", station);
+        return "detailsStation";
     }
 
     // 5.11 -- Pour que Thymeleaf affiche le formulaire VIERGE d'ajout (bouton "Ajoutez") : on dépose un Programmeur vide dans le Model,
     // le formulaire de nouveauProgrammeur.html s'y rattache avec th:object.
     // Route : "/nouveau" (un nom, pas un verbe, cf. 4.8). Elle ressemble à "/{idProgrammeur}" mais Spring choisit toujours la route littérale
     // plutôt que la route à variable, quel que soit l'ordre de déclaration : "/programmeurs/nouveau" n'est donc pas pris pour un id.
-    @GetMapping("/nouveau")
-    public String preparerAjoutProgrammeur(Model model) {
-        model.addAttribute("nouveauProgrammeur", new Programmeur());
-        return "nouveauProgrammeur";
+    @GetMapping("/nouvelle")
+    public String preparerAjoutStation(Model model) {
+        model.addAttribute("nouvelleStation", new Station());
+        return "nouvelleStation";
     }
 
     // Ancienne route : /supprimerProgrammeur/{idProgrammeur}. Le verbe est déjà dans la méthode HTTP : DELETE.
@@ -88,16 +90,16 @@ public class StationControleur {
     // 5.10.3 -- Après la suppression, on REDIRIGE vers la liste au lieu de retourner directement le template :
     // le navigateur reçoit un 302 + l'en-tête Location et refait de lui-même un GET /programmeurs. La liste affichée est ainsi relue en base (donc à jour),
     // et un rafraîchissement de la page (F5) ne rejoue pas la suppression.
-    @DeleteMapping("/{idProgrammeur}")
+    @DeleteMapping("/{idStation}")
 //    public ResponseEntity<Void> deleteProgrammeur(@PathVariable("idProgrammeur") Integer idProg) {
 //        if (programmeurService.supprimerProgrammeur(idProg)) return ResponseEntity.noContent().build();
 //        return ResponseEntity.notFound().build();
-    public String deleteProgrammeur(@PathVariable("idProgrammeur") Integer idProg) {
-        if (!equipementService.supprimerProgrammeur(idProg)) {
+    public String deleteStation(@PathVariable("idStation") Long idStation) {
+        if (!stationService.supprimerStation(idStation)) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Le programmeur dont l'id est " + idProg + " n'existe pas");
+                    HttpStatus.NOT_FOUND, "La station dont l'id est " + idStation + " n'existe pas");
         }
-        return "redirect:/programmeurs";    // "redirect:" + une ROUTE (pas un nom de template) : ici celle de la liste
+        return "redirect:/stations";    // "redirect:" + une ROUTE (pas un nom de template) : ici celle de la liste
     }
 
     // Ancienne route : /ajouterProgrammeur. Même principe : POST sur la collection = "ajouter un élément à /programmeurs".
@@ -114,9 +116,9 @@ public class StationControleur {
 //                .buildAndExpand(programmeurCree.getId())
 //                .toUri();
 //        return ResponseEntity.created(location).body(programmeurCree);
-    public String creerProgrammeur(@ModelAttribute Programmeur programmeur){
-        equipementService.ajouterProgrammeur(programmeur);
-        return "redirect:/programmeurs";
+    public String creerStation(@ModelAttribute Station station){
+        stationService.ajouterStation(station);
+        return "redirect:/stations";
     }
 
     // Ancienne route : "modifier/{idProgrammeur}" (verbe dans l'URL, et "/" initial oublié).
@@ -125,17 +127,17 @@ public class StationControleur {
     // On ne crée PAS le programmeur s'il n'existe pas : les ids sont générés par la base, pas choisis par le client.
     // 5.12.2 -- Même mécanique que pour la suppression : le formulaire "detailsProgrammeur" envoie un POST avec _method=PUT (5.10.2),
     // les données arrivent sous forme de formulaire (@ModelAttribute au lieu de @RequestBody), puis on redirige vers la liste actualisée.
-    @PutMapping("/{idProgrammeur}")
+    @PutMapping("/{idStation}")
 //    public ResponseEntity<Programmeur> modifierProgrammeur(@PathVariable Integer idProgrammeur,@RequestBody Programmeur programmeurModified ){
 //        return programmeurService.modifierProgrammeur(idProgrammeur,programmeurModified)
 //                .map(ResponseEntity::ok)
 //                .orElse(ResponseEntity.notFound().build());
-    public String modifierProgrammeur(@PathVariable Integer idProgrammeur,@ModelAttribute Programmeur programmeurModified ){
-        if (equipementService.modifierProgrammeur(idProgrammeur,programmeurModified).isEmpty()) {
+    public String modifierStation(@PathVariable Long idStation,@ModelAttribute Station stationModified ){
+        if (stationService.modifierstation(idStation,stationModified).isEmpty()) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Le programmeur dont l'id est " + idProgrammeur + " n'existe pas");
+                    HttpStatus.NOT_FOUND, "Le Station dont l'id est " + idStation + " n'existe pas");
         }
-        return "redirect:/programmeurs";
+        return "redirect:/stations";
     }
 
 }
