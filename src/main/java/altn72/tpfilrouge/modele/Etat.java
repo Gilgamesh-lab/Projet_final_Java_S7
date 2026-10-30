@@ -1,9 +1,9 @@
 package altn72.tpfilrouge.modele;
 
 public enum Etat {
-    EN_SERVICE("En service"),
-    EN_PANNE("En panne"),
-    HORS_SERVICE("Hors service");
+    EN_SERVICE("En_service"),
+    EN_PANNE("En_panne"),
+    HORS_SERVICE("Hors_service");
 
     private final String libelle;
 
