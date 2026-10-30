@@ -34,6 +34,6 @@ public class UtilisateurConnecte implements Serializable {
     }
 
     public boolean isResponsable() {
-        return profil == Profil.Responsable_exploitation;
+        return profil == Profil.RESPONSABLE;
     }
 }

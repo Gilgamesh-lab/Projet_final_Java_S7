@@ -1,6 +1,6 @@
 package altn72.tpfilrouge.service;
 
-import altn72.tpfilrouge.modele.UtilisateurRepository;
+import altn72.tpfilrouge.repository.UtilisateurRepository;
 import altn72.tpfilrouge.securite.UtilisateurConnecte;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
