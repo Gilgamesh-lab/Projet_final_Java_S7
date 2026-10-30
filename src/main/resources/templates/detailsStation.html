@@ -22,25 +22,14 @@
            Ces instructions se simplifient avec "th:method" (ci-dessous) : Thymeleaf envoie un POST et ajoute lui-même le champ caché _method. */-->
     <form th:object="${stationToUpdate}" th:action="@{/stations/{idStation}(idStation=${stationToUpdate.id})}" th:method="PUT">
 
+        <label class="form-label" for="id">ID</label>
+        <input type="text" th:field="*{id}" class="form-control mb-3 w-50">
+
         <label class="form-label" for="nom">Nom</label>
         <input type="text" th:field="*{nom}" class="form-control mb-3 w-50">
 
-        <label class="form-label" for="prenom">Prénom</label>
-        <input type="text" th:field="*{prenom}" class="form-control mb-3 w-50">
-
-        <label class="form-label" for="adresse">Adresse</label>
-        <input type="text" th:field="*{adresse}" class="form-control mb-3 w-50">
-
-        <label class="form-label" for="langageExpertise">Langage d'expertise</label>
-        <input type="text" th:field="*{langageExpertise}" class="form-control mb-3 w-50">
-
-        <label class="form-label" for="livrePrefere">Livre préféré</label>
-        <input type="text" th:field="*{livrePrefere}" class="form-control mb-3 w-50">
-
-        <!--/* type="number" step="any" : le navigateur envoie toujours le nombre avec un POINT décimal (45000.5), quelle que soit la langue du poste.
-               Avec type="text", saisir "45000,5" provoquerait une erreur de conversion (400 Bad Request) car Double n'accepte pas la virgule. */-->
-        <label class="form-label" for="salaire">Salaire</label>
-        <input type="number" step="any" th:field="*{salaire}" class="form-control mb-3 w-50">
+        <label class="form-label" for="identifiant">Identifiant</label>
+        <input type="text" th:field="*{identifiant}" class="form-control mb-3 w-50">
 
         <button type="submit" class="btn btn-primary">Validez</button>
     </form>
