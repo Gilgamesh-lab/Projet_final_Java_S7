@@ -32,13 +32,13 @@
         <tbody>
         <tr th:each="station : ${stations}">
             <!--/* th:text affiche la valeur de l'expression en échappant le HTML. ${programmeur.nom} appelle getNom() sur l'objet courant. */-->
-            <td th:text="${station.id_station}"></td>
+            <td th:text="${station.id}"></td>
             <td th:text="${station.nom}"></td>
             <td th:text="${station.identifiant}"></td>
             <td>
                 <!--/* 5.12.1 -- Bouton "Modifiez" : un formulaire GET vers /programmeurs/{id}, qui affiche la page detailsProgrammeur (formulaire prérempli).
                        @{...} construit une URL (en tenant compte du contexte de l'application) ; (idProgrammeur=...) renseigne la variable {idProgrammeur} de la route. */-->
-                <form th:action="@{/stations/{id_station}(id_station=${station.id_station})}" style="display:inline;">
+                <form th:action="@{/stations/{id}(id=${station.id})}" style="display:inline;">
                     <button class="btn btn-info btn-sm">Modifiez</button>
                 </form>
 
@@ -48,7 +48,7 @@
                        5.10.3 -- Solution : un champ caché "_method" dans le formulaire, lu par le HiddenHttpMethodFilter (à activer dans application.properties) :
                        <input type="hidden" name="_method" value="DELETE" />
                        Ces deux instructions se simplifient avec "th:method" : Thymeleaf envoie un POST et ajoute lui-même le champ caché _method. */-->
-                <form th:action="@{/stations/{id_station}(id_station=${station.id_station})}" th:method="DELETE" style="display:inline;">
+                <form th:action="@{/stations/{id}(id=${station.id})}" th:method="DELETE" style="display:inline;">
                     <button class="btn btn-warning btn-sm">Supprimez</button>
                 </form>
             </td>
