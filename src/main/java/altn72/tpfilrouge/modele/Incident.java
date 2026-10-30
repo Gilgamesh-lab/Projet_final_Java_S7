@@ -39,6 +39,9 @@ public class Incident {
     @Column(name = "date_resolution")
     private LocalDateTime dateResolution;
 
+    @OneToOne(mappedBy = "incident")
+    private Evaluation evaluation;
+
     public Long getId() {
         return id;
     }
@@ -101,6 +104,10 @@ public class Incident {
 
     public void setDateResolution(LocalDateTime dateResolution) {
         this.dateResolution = dateResolution;
+    }
+
+    public Evaluation getEvaluation() {
+        return evaluation;
     }
 
     @Override
