@@ -49,7 +49,7 @@
     </div>
 
     <!--/* F11 : filtres (au moins deux critères) */-->
-    <form class="row g-2 mb-3" method="get">
+    <form class="row g-2 mb-3" th:method="GET" th:action="@{tableau-de-bord}"  >
         <div class="col-md-4">
             <select name="station" class="form-select">
                 <option value="">Toutes les stations</option>
@@ -69,7 +69,7 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+            <button  type="submit" class="btn btn-primary w-100">Filtrer</button>
         </div>
     </form>
 

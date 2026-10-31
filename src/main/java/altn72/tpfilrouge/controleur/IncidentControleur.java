@@ -46,11 +46,10 @@ public class IncidentControleur {
         model.addAttribute("incidents", liste);
         return "listeIncidents";
     }
-    ///tableau-de-bord/{stationId}/{niveau}
-    /// @PathVariable("stationId") Long stationId, @PathVariable("niveau") Indicateur niveau,
-    @GetMapping("/tableau-de-bord")
+
+    /*@GetMapping("/tableau-de-bordf")
     public String afficherTableauDeBord( Model model){
-        List<Incident> liste = incidentService.getIncidentsEnCours();
+
         model.addAttribute("compteurs", tableauDeBordService.getCompteurs());
         model.addAttribute("actifsParStation", tableauDeBordService.getActifsParStation());
         model.addAttribute("incidents", liste);
@@ -60,12 +59,20 @@ public class IncidentControleur {
         model.addAttribute("nbIncidentPrisEnCharge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.PRIS_EN_CHARGE)).count());
         model.addAttribute("niveau", liste.stream().map(incident -> indicateurService.calculer(incident)).collect(Collectors.toList()));
         return "tableauDeBord";
-    }
+    }*/
+//http://localhost:8080/incidents/tableau-de-bord?station=Place+du+March%C3%A9&niveau=Pris+en+charge
+    @GetMapping("/tableau-de-bord")
+    public String afficherTableauDeBordFilter(@RequestParam(required = false, value = "station") String station, @RequestParam(required = false, value = "niveau") String niveau, Model model){
+        List<Incident> liste;
+        if(station == null || niveau == null || station.isEmpty() || niveau.isEmpty()){
+            liste = incidentService.getIncidentsEnCours();
+        }
+        else{
+            Indicateur indicateur = Indicateur.valueOf(niveau.toUpperCase().replace(" ", "_"));
+            Long stationId = stationService.getUneStation(station).getId();
+            liste = tableauDeBordService.getLignes(stationId, indicateur).stream().map(LigneTableauDeBord::getIncident).collect(Collectors.toList());
+        }
 
-    @GetMapping("/tableau-de-bord/{station}/{niveau}")
-    public String afficherTableauDeBordFilter(@PathVariable("station") String station, @PathVariable("niveau") Indicateur niveau, Model model){
-        Long stationId = stationService.getUneStation(station).getId();
-        List<Incident> liste = tableauDeBordService.getLignes(stationId, niveau).stream().map(LigneTableauDeBord::getIncident).collect(Collectors.toList());
         model.addAttribute("incidents", liste);
         model.addAttribute("listeNiveau", Indicateur.values());
         model.addAttribute("listeStation", stationService.getStations().stream().map(Station::getNom).collect(Collectors.toList()));
