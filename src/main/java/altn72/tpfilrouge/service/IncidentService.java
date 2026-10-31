@@ -53,7 +53,10 @@ public class IncidentService {
     @Transactional
     public void modifierIncident(Long idIncident, Incident incidentModified) {
        Incident incidentModify = incidentRepository.findById(idIncident).get();
-       incidentModify.setDescription(incidentModified.getDescription());
-       incidentRepository.save(incidentModify);
+       if(incidentModify != null){
+           incidentModify.setDescription(incidentModified.getDescription());
+           incidentRepository.save(incidentModify);
+       }
+
     }
 }

@@ -54,10 +54,11 @@ public class IncidentControleur {
     @GetMapping("/tableau-de-bord")
     public String afficherTableauDeBordFilter(@RequestParam(required = false, value = "station") String station, @RequestParam(required = false, value = "niveau") String niveau, Model model){
         List<Incident> liste;
-        if(station == null && niveau == null || station.isEmpty() && niveau.isEmpty()){
+        if((station == null || station.isEmpty()) && (niveau == null ||niveau.isEmpty()) ){
             liste = incidentService.getIncidentsEnCours();
         }
-        else{
+
+        } else{
             Indicateur indicateur = null;
             if(niveau != null && !niveau.isEmpty()){
                 indicateur = Indicateur.valueOf(niveau.toUpperCase().replace(" ", "_"));

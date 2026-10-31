@@ -20,9 +20,9 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
     List<Incident> findActifs();
 
 
-    @Query(value = "SELECT s.nom AS station, COUNT(i.id) AS nombre FROM Station s " +
-            "JOIN Equipement e ON e.station_id = s.id " +
-            "JOIN Incident i ON i.equipement_id = e.id " +
+    @Query(value = "SELECT s.nom AS station, COUNT(i.id) AS nombre FROM station s " +
+            "JOIN equipement e ON e.station_id = s.id " +
+            "JOIN incident i ON i.equipement_id = e.id " +
             "WHERE i.statut <> 'RESOLU' " +
             "GROUP BY s.id, s.nom ORDER BY nombre DESC",
             nativeQuery = true)
