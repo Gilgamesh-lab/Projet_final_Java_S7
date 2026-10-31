@@ -1,9 +1,9 @@
 package altn72.tpfilrouge.controleur;
 
 import altn72.tpfilrouge.modele.Incident;
+import altn72.tpfilrouge.modele.Indicateur;
 import altn72.tpfilrouge.modele.Station;
-import altn72.tpfilrouge.service.IncidentService;
-import altn72.tpfilrouge.service.StationService;
+import altn72.tpfilrouge.service.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -23,12 +24,59 @@ public class IncidentControleur {
     @Autowired
     private IncidentService incidentService;
 
+    @Autowired
+    private IndicateurService indicateurService;
+
+    @Autowired
+    private TableauDeBordService tableauDeBordService;
+    @Autowired
+    private StationService stationService;
+
 
     @GetMapping
     public String afficherInfosIncidents(Model model){
         List<Incident> liste = incidentService.getIncidents();
         model.addAttribute("incidents", liste);
         return "listeIncidents";
+    }
+
+    @GetMapping("/historique")
+    public String afficherHistorique(Model model){
+        List<Incident> liste = incidentService.getIncidentsResolue();
+        model.addAttribute("incidents", liste);
+        return "listeIncidents";
+    }
+    ///tableau-de-bord/{stationId}/{niveau}
+    /// @PathVariable("stationId") Long stationId, @PathVariable("niveau") Indicateur niveau,
+    @GetMapping("/tableau-de-bord")
+    public String afficherTableauDeBord( Model model){
+        List<Incident> liste = incidentService.getIncidentsEnCours();
+        model.addAttribute("compteurs", tableauDeBordService.getCompteurs());
+        model.addAttribute("actifsParStation", tableauDeBordService.getActifsParStation());
+        model.addAttribute("incidents", liste);
+        model.addAttribute("nbIncident", liste.size());
+        model.addAttribute("nbIncidentRouge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ROUGE)).count());
+        model.addAttribute("nbIncidentOrange", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ORANGE)).count());
+        model.addAttribute("nbIncidentPrisEnCharge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.PRIS_EN_CHARGE)).count());
+        model.addAttribute("niveau", liste.stream().map(incident -> indicateurService.calculer(incident)).collect(Collectors.toList()));
+        return "tableauDeBord";
+    }
+
+    @GetMapping("/tableau-de-bord/{station}/{niveau}")
+    public String afficherTableauDeBordFilter(@PathVariable("station") String station, @PathVariable("niveau") Indicateur niveau, Model model){
+        Long stationId = stationService.getUneStation(station).getId();
+        List<Incident> liste = tableauDeBordService.getLignes(stationId, niveau).stream().map(LigneTableauDeBord::getIncident).collect(Collectors.toList());
+        model.addAttribute("incidents", liste);
+        model.addAttribute("listeNiveau", Indicateur.values());
+        model.addAttribute("listeStation", stationService.getStations().stream().map(Station::getNom).collect(Collectors.toList()));
+        model.addAttribute("compteurs", tableauDeBordService.getCompteurs());
+        model.addAttribute("actifsParStation", tableauDeBordService.getActifsParStation());
+        model.addAttribute("nbIncident", liste.size());
+        model.addAttribute("nbIncidentRouge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ROUGE)).count());
+        model.addAttribute("nbIncidentOrange", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ORANGE)).count());
+        model.addAttribute("nbIncidentPrisEnCharge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.PRIS_EN_CHARGE)).count());
+        model.addAttribute("niveau", liste.stream().map(incident -> indicateurService.calculer(incident)).collect(Collectors.toList()));
+        return "tableauDeBord";
     }
 
     @GetMapping("/{id}")
@@ -63,7 +111,7 @@ public class IncidentControleur {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("/modifier/{id}")
     public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute Incident incidentModified ){
         if (incidentService.modifierIncident(id,incidentModified).isEmpty()) {
             throw new ResponseStatusException(

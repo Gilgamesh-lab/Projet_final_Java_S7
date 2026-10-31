@@ -1,6 +1,7 @@
 package altn72.tpfilrouge.service;
 
 import altn72.tpfilrouge.modele.Incident;
+import altn72.tpfilrouge.modele.Statut;
 import altn72.tpfilrouge.repository.IncidentRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,14 @@ public class IncidentService {
 
     public List<Incident> getIncidents() {
         return incidentRepository.findAll();
+    }
+
+    public List<Incident> getIncidentsResolue() {
+        return incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.RESOLU);
+    }
+
+    public List<Incident> getIncidentsEnCours() {
+        return incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.EN_COURS);
     }
 
     public Optional<Incident> getUnIncident(Long idIncident) {

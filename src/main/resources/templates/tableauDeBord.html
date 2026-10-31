@@ -17,7 +17,7 @@
         <div class="col-6 col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <div class="fs-2 fw-bold">7</div>
+                    <div class="fs-2 fw-bold"> [[${nbIncident}]]</div>
                     <div class="text-muted">Incidents actifs</div>
                 </div>
             </div>
@@ -25,7 +25,7 @@
         <div class="col-6 col-md-3">
             <div class="card text-center border-danger">
                 <div class="card-body">
-                    <div class="fs-2 fw-bold text-danger">1</div>
+                    <div class="fs-2 fw-bold text-danger">[[${nbIncidentRouge}]]</div>
                     <div class="text-muted">En rouge (≥ 72 h)</div>
                 </div>
             </div>
@@ -33,7 +33,7 @@
         <div class="col-6 col-md-3">
             <div class="card text-center border-warning">
                 <div class="card-body">
-                    <div class="fs-2 fw-bold text-warning">2</div>
+                    <div class="fs-2 fw-bold text-warning">[[${nbIncidentOrange}]]</div>
                     <div class="text-muted">En orange (48–72 h)</div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
         <div class="col-6 col-md-3">
             <div class="card text-center border-primary">
                 <div class="card-body">
-                    <div class="fs-2 fw-bold text-primary">2</div>
+                    <div class="fs-2 fw-bold text-primary">[[${nbIncidentPrisEnCharge}]]</div>
                     <div class="text-muted">Pris en charge</div>
                 </div>
             </div>
@@ -77,79 +77,36 @@
     <table class="table table-hover align-middle">
         <thead>
         <tr>
+            <th>Id</th>
             <th>Niveau</th>
+
             <th>Ouvert depuis</th>
             <th>Station</th>
+
             <th>Équipement</th>
             <th>Description</th>
-            <th>Prestataire</th>
+
+            <th>Identifiant</th>
+            <th>Statut</th>
             <th></th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td><span class="badge bg-danger">Rouge</span></td>
-            <td>72 h</td>
-            <td>Université</td>
-            <td>ASC-002</td>
-            <td>Porte de l'ascenseur ne se ferme pas</td>
-            <td><span class="text-muted">Non affecté</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr>
-            <td><span class="badge bg-warning text-dark">Orange</span></td>
-            <td>71 h</td>
-            <td>Place du Marché</td>
-            <td>DIS-001</td>
-            <td>Écran tactile du distributeur inopérant</td>
-            <td><span class="text-muted">Non affecté</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr>
-            <td><span class="badge bg-warning text-dark">Orange</span></td>
-            <td>48 h</td>
-            <td>Place du Marché</td>
-            <td>POR-001</td>
-            <td>Portique qui ne s'ouvre plus</td>
-            <td><span class="text-muted">Non affecté</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr>
-            <td><span class="badge bg-success">Vert</span></td>
-            <td>47 h</td>
-            <td>Gare Centrale</td>
-            <td>ESC-001</td>
-            <td>Escalator à l'arrêt, bruit anormal</td>
-            <td><span class="text-muted">Non affecté</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr>
-            <td><span class="badge bg-success">Vert</span></td>
-            <td>5 h</td>
-            <td>Gare Centrale</td>
-            <td>ASC-001</td>
-            <td>Ascenseur bloqué entre deux étages</td>
-            <td><span class="text-muted">Non affecté</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <!--/* Incident affecté : état distinct, jamais vert/orange/rouge (RG4) */-->
-        <tr class="table-primary">
-            <td><span class="badge bg-primary">Pris en charge</span></td>
-            <td>80 h</td>
-            <td>Gare Centrale</td>
-            <td>ASC-001</td>
-            <td>Câble de traction à contrôler</td>
-            <td>Ascenseurs Dupont</td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr class="table-primary">
-            <td><span class="badge bg-primary">Pris en charge</span></td>
-            <td>20 h</td>
-            <td>Place du Marché</td>
-            <td>POR-001</td>
-            <td>Lecteur de titres défaillant</td>
-            <td>TechniServices</td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
+        <tr th:each="incident: ${incidents}">
+            <td th:text="${incident.id}" />
+            <td th:text="${niveau[0]}" />
+
+            <td th:text="${incident.getDateOuverture()}" />
+            <td th:text="${incident.getEquipement().station.nom}" />
+
+            <td th:text="${incident.getEquipement().libelle}" />
+            <td th:text="${incident.description}" />
+
+            <td th:text="${incident.identifiant}" />
+            <td th:text="${incident.statut}" />
+
+
+            <br>
         </tr>
         </tbody>
     </table>

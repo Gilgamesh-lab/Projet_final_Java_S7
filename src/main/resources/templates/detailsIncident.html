@@ -69,7 +69,7 @@
             <div class="card">
                 <div class="card-header">Modifier la description (F6)</div>
                 <div class="card-body">
-                    <form method="post">
+                    <form th:method="put" th:action="@{/incidents/modifier/{id}(id=${incidentToUpdate.id})}" method="put">
                         <textarea name="description" rows="3" class="form-control mb-2">Câble de traction à contrôler</textarea>
                         <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
                     </form>

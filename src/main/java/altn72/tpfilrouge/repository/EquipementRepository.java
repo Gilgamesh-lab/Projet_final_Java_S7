@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface EquipementRepository extends JpaRepository<Equipement, Long> {
-    //List<Equipement> findByStation_Equipement(String nom);
+    List<Equipement> findByType(String nom);
 }
 

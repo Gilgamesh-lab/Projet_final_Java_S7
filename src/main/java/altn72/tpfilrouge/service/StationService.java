@@ -27,6 +27,10 @@ public class StationService {
             return uneStation;
     }
 
+    public Station getUneStation(String nomStation) {
+        return stationRepository.findByNom(nomStation).get(0);
+    }
+
     @Transactional
     public boolean supprimerStation(Long idStation) {
         if (!stationRepository.existsById(idStation)) return false;
