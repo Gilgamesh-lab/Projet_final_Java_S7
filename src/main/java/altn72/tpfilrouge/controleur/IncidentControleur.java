@@ -47,20 +47,7 @@ public class IncidentControleur {
         return "listeIncidents";
     }
 
-    /*@GetMapping("/tableau-de-bordf")
-    public String afficherTableauDeBord( Model model){
 
-        model.addAttribute("compteurs", tableauDeBordService.getCompteurs());
-        model.addAttribute("actifsParStation", tableauDeBordService.getActifsParStation());
-        model.addAttribute("incidents", liste);
-        model.addAttribute("nbIncident", liste.size());
-        model.addAttribute("nbIncidentRouge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ROUGE)).count());
-        model.addAttribute("nbIncidentOrange", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ORANGE)).count());
-        model.addAttribute("nbIncidentPrisEnCharge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.PRIS_EN_CHARGE)).count());
-        model.addAttribute("niveau", liste.stream().map(incident -> indicateurService.calculer(incident)).collect(Collectors.toList()));
-        return "tableauDeBord";
-    }*/
-//http://localhost:8080/incidents/tableau-de-bord?station=Place+du+March%C3%A9&niveau=Pris+en+charge
     @GetMapping("/tableau-de-bord")
     public String afficherTableauDeBordFilter(@RequestParam(required = false, value = "station") String station, @RequestParam(required = false, value = "niveau") String niveau, Model model){
         List<Incident> liste;
@@ -107,14 +94,14 @@ public class IncidentControleur {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas");
         }
-        return "redirect:/incidents";    // "redirect:" + une ROUTE (pas un nom de template) : ici celle de la liste
+        return "redirect:/listeEquipement";    // "redirect:" + une ROUTE (pas un nom de template) : ici celle de la liste
     }
 
 
     @PostMapping
     public String creerIncident(@ModelAttribute Incident incident){
         incidentService.ajouterIncident(incident);
-        return "redirect:/incidents";
+        return "redirect:/equipements";
     }
 
 
@@ -124,7 +111,7 @@ public class IncidentControleur {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas");
         }
-        return "redirect:/incidents";
+        return "redirect:/equipements";
     }
 
 }

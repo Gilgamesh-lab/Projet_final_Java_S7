@@ -92,9 +92,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="incident: ${incidents}">
+        <tr th:each="incident,iterator: ${incidents}">
             <td th:text="${incident.id}" />
-            <td th:text="${niveau[0]}" />
+            <td th:text="${niveau[iterator.index]}" />
 
             <td th:text="${incident.getDateOuverture()}" />
             <td th:text="${incident.getEquipement().station.nom}" />

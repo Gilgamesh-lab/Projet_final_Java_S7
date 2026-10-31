@@ -8,7 +8,7 @@
     <ul class="navbar-nav me-auto">
         <!--/* Lien masqué pour l'agent ; la route reste de toute façon protégée côté serveur */-->
         <li class="nav-item" th:if="${session.utilisateur?.responsable}"><a class="nav-link" th:href="@{/incidents/tableau-de-bord}">Tableau de bord</a></li>
-        <li class="nav-item"><a class="nav-link" th:href="@{/stations}">Équipements</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/equipements}">Équipements</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/incidents/historique}">Historique</a></li>
     </ul>
     <span class="navbar-text text-light">

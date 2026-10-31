@@ -124,7 +124,7 @@ MariaDB (schema.sql + data.sql)
   - Christophe HUANG : base de données (`schema.sql`, `data.sql`), alignement des entités sur le schéma, maquettes
     des pages, connexion / déconnexion et droits par profil (F1), calcul de l'indicateur d'urgence et ses tests ;
   - Fabrice AMEGADJEN : entités JPA, stations (`StationRepository`, `StationService`, `StationControleur`),
-    configuration PostgreSQL.
+    configuration PostgreSQL, alimentation du Tableau de bord, alimentation des pages equipements
 - Plus grande difficulté et comment elle a été surmontée : à compléter
 - Fonctionnalités non réalisées et pourquoi : à compléter
 - Trois points à retenir du cours et du projet : à compléter

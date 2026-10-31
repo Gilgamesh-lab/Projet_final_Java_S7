@@ -3,6 +3,7 @@ package altn72.tpfilrouge.controleur;
 import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Station;
 import altn72.tpfilrouge.service.EquipementService;
+import altn72.tpfilrouge.service.IncidentService;
 import altn72.tpfilrouge.service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -22,10 +24,19 @@ public class EquipementControleur {
     @Autowired
     private EquipementService equipementService;
 
+    @Autowired
+    private IncidentService incidentService;
+
 
     @GetMapping
-    public String afficherInfosEquipements(Model model){
-        List<Equipement> liste = equipementService.getEquipements();
+    public String afficherInfosEquipements(@RequestParam(required = false, value = "station") String station, Model model){
+        List<Equipement> liste;
+        if(station == null || station.isEmpty()){
+            liste = equipementService.getEquipements();
+        }
+        else{
+            liste = equipementService.getEquipements().stream().filter(equipement -> equipement.getStation().getNom().equals(station)).collect(Collectors.toList());
+        }
         model.addAttribute("equipements", liste);
         return "listeEquipements";
     }
@@ -35,7 +46,8 @@ public class EquipementControleur {
         Equipement equipement = equipementService.getUnEquipement(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "L'equipement dont l'id est " + id + " n'existe pas"));
-        model.addAttribute("equipementToUpdate", equipement);
+        model.addAttribute("equipement", equipement);
+        model.addAttribute("incidents", incidentService.getIncidents().stream().filter(incident -> incident.getEquipement().getId().equals(equipement.getId())).collect(Collectors.toList()));
         return "detailsEquipement";
     }
 
