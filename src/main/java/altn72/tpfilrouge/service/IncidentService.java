@@ -27,7 +27,9 @@ public class IncidentService {
     }
 
     public List<Incident> getIncidentsEnCours() {
-        return incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.EN_COURS);
+        List<Incident> incidents = incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.EN_COURS);
+        incidents.addAll(incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.NOUVEAU));
+        return incidents;
     }
 
     public Optional<Incident> getUnIncident(Long idIncident) {
@@ -49,10 +51,9 @@ public class IncidentService {
     }
 
     @Transactional
-    public Optional<Incident> modifierIncident(Long idIncident, Incident incidentModified) {
-       return incidentRepository.findById(idIncident).map(incidentToModify -> {
-            BeanUtils.copyProperties(incidentModified, incidentToModify, "id");
-            return incidentToModify;
-        });
+    public void modifierIncident(Long idIncident, Incident incidentModified) {
+       Incident incidentModify = incidentRepository.findById(idIncident).get();
+       incidentModify.setDescription(incidentModified.getDescription());
+       incidentRepository.save(incidentModify);
     }
 }

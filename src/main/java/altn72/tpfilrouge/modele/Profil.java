@@ -1,7 +1,7 @@
 package altn72.tpfilrouge.modele;
 
 public enum Profil {
-    Responsable("Responsable"),
+    RESPONSABLE("RESPONSABLE"),
     AGENT("Agent");
 
     private final String libelle;

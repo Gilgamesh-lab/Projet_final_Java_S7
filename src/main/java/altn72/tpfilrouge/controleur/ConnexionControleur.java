@@ -41,7 +41,9 @@ public class ConnexionControleur {
         Optional<UtilisateurConnecte> utilisateur = connexionService.authentifier(login, motDePasse);
 
         // Échec : on réaffiche la même page avec un message, le login saisi est conservé
+
         if (utilisateur.isEmpty()) {
+            System.out.println("ok");
             model.addAttribute("erreur", "Login ou mot de passe incorrect.");
             model.addAttribute("login", login);
             return "pageConnexion";

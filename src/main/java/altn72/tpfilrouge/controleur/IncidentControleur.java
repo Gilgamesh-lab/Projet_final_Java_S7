@@ -2,7 +2,9 @@ package altn72.tpfilrouge.controleur;
 
 import altn72.tpfilrouge.modele.Incident;
 import altn72.tpfilrouge.modele.Indicateur;
+import altn72.tpfilrouge.modele.Profil;
 import altn72.tpfilrouge.modele.Station;
+import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +46,28 @@ public class IncidentControleur {
     public String afficherHistorique(Model model){
         List<Incident> liste = incidentService.getIncidentsResolue();
         model.addAttribute("incidents", liste);
-        return "listeIncidents";
+        return "historiqueIncidents";
     }
 
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @GetMapping("/tableau-de-bord")
     public String afficherTableauDeBordFilter(@RequestParam(required = false, value = "station") String station, @RequestParam(required = false, value = "niveau") String niveau, Model model){
         List<Incident> liste;
-        if(station == null || niveau == null || station.isEmpty() || niveau.isEmpty()){
+        if(station == null && niveau == null || station.isEmpty() && niveau.isEmpty()){
             liste = incidentService.getIncidentsEnCours();
         }
         else{
-            Indicateur indicateur = Indicateur.valueOf(niveau.toUpperCase().replace(" ", "_"));
-            Long stationId = stationService.getUneStation(station).getId();
+            Indicateur indicateur = null;
+            if(niveau != null && !niveau.isEmpty()){
+                indicateur = Indicateur.valueOf(niveau.toUpperCase().replace(" ", "_"));
+            }
+
+            Long stationId = null;
+            if(station != null && !station.isEmpty()){
+                stationId = stationService.getUneStation(station).getId();
+            }
+
             liste = tableauDeBordService.getLignes(stationId, indicateur).stream().map(LigneTableauDeBord::getIncident).collect(Collectors.toList());
         }
 
@@ -107,10 +118,7 @@ public class IncidentControleur {
 
     @PutMapping("/modifier/{id}")
     public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute Incident incidentModified ){
-        if (incidentService.modifierIncident(id,incidentModified).isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas");
-        }
+        incidentService.modifierIncident(id,incidentModified);
         return "redirect:/equipements";
     }
 

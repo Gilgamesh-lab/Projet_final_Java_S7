@@ -1,6 +1,8 @@
 package altn72.tpfilrouge.service;
 
 import altn72.tpfilrouge.modele.Station;
+import altn72.tpfilrouge.repository.EquipementRepository;
+import altn72.tpfilrouge.repository.IncidentRepository;
 import altn72.tpfilrouge.repository.StationRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,12 @@ public class StationService {
 
     @Autowired
     private StationRepository stationRepository;
+
+    @Autowired
+    private EquipementRepository equipementRepository;
+
+    @Autowired
+    private IncidentRepository incidentRepository;
 
     public List<Station> getStations() {
         return stationRepository.findAll();
@@ -34,6 +42,8 @@ public class StationService {
     @Transactional
     public boolean supprimerStation(Long idStation) {
         if (!stationRepository.existsById(idStation)) return false;
+        incidentRepository.deleteIncidentByEquipement_Id(idStation);
+        equipementRepository.deleteEquipementByStation(this.getUneStation(idStation).get());
         stationRepository.deleteById(idStation);
         return true;
     }

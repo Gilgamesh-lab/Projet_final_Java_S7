@@ -14,11 +14,11 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
     List<Incident> findByStatutOrderByDateResolutionDesc(Statut statut);
 
 
-
     // JOIN FETCH : équipement, station et prestataire chargés en une seule requête au lieu d'une par incident
     @Query(value = "SELECT i FROM Incident i JOIN FETCH i.equipement e JOIN FETCH e.station LEFT JOIN FETCH i.prestataire " +
             "WHERE i.statut <> altn72.tpfilrouge.modele.Statut.RESOLU ORDER BY i.dateOuverture")
     List<Incident> findActifs();
+
 
     @Query(value = "SELECT s.nom AS station, COUNT(i.id) AS nombre FROM Station s " +
             "JOIN Equipement e ON e.station_id = s.id " +
@@ -27,6 +27,8 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
             "GROUP BY s.id, s.nom ORDER BY nombre DESC",
             nativeQuery = true)
     List<NombreParStation> compterActifsParStation();
+
+    void deleteIncidentByEquipement_Id(Long equipementId);
 
     interface NombreParStation {
         String getStation();
