@@ -53,7 +53,8 @@ public class StationService {
     }
 
     @Transactional
-    public Optional<Station> modifierstation(Long idStation, Station stationModified) {
+    public Optional<Station> modifierStation(Long idStation, Station stationModified) {
+        stationRepository.setStationInfoById(stationModified.getNom(), stationModified.getIdentifiant(), stationModified.getId());
        return stationRepository.findById(idStation).map(stationToModify -> {
             BeanUtils.copyProperties(stationModified, stationToModify, "id");
             return stationToModify;

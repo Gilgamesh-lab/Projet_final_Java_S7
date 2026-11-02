@@ -46,6 +46,7 @@ public class EquipementService {
 
     @Transactional
     public Optional<Equipement> modifierEquipement(Long idEquipement, Equipement equipementModified) {
+        equipementRepository.setEquipementInfoById(equipementModified.getReference(), equipementModified.getLibelle(),equipementModified.getType(), equipementModified.getEtat(), equipementModified.getStation(), equipementModified.getId());
         return equipementRepository.findById(idEquipement).map(equipementToModify -> {
             BeanUtils.copyProperties(equipementModified, equipementToModify, "id");
             return equipementToModify;

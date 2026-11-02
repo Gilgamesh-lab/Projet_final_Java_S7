@@ -1,8 +1,6 @@
 package altn72.tpfilrouge.controleur;
 
-import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Station;
-import altn72.tpfilrouge.service.EquipementService;
 import altn72.tpfilrouge.service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -65,7 +63,7 @@ public class StationControleur {
 
     @PutMapping("/{id}")
     public String modifierStation(@PathVariable("id") Long id,@ModelAttribute Station stationModified ){
-        if (stationService.modifierstation(id,stationModified).isEmpty()) {
+        if (stationService.modifierStation(id,stationModified).isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Le Station dont l'id est " + id + " n'existe pas");
         }

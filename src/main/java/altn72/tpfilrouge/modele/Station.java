@@ -19,6 +19,8 @@ public class Station {
     @Column(name = "nom", nullable = false, length = 100)
     private String nom;
 
+
+
     public Long getId() {
         return id;
     }
