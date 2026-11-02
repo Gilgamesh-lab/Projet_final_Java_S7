@@ -16,46 +16,42 @@
     <table class="table table-striped table-hover align-middle">
         <thead>
         <tr>
-            <th>Résolution</th>
+            <th>Id</th>
+
+
             <th>Ouverture</th>
             <th>Station</th>
+
             <th>Équipement</th>
             <th>Description</th>
+
+            <th>Identifiant</th>
+
+
             <th>Prestataire</th>
             <th>Note</th>
             <th></th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>28/10/2026 10:00</td>
-            <td>26/10/2026 10:00</td>
-            <td>Gare Centrale</td>
-            <td>ESC-001</td>
-            <td>Marche bloquée sur l'escalator</td>
-            <td>Ascenseurs Dupont</td>
-            <td><a href="#" class="btn btn-sm btn-outline-success">Évaluer</a></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr>
-            <td>25/10/2026 10:00</td>
-            <td>23/10/2026 10:00</td>
-            <td>Aéroport</td>
-            <td>DIS-002</td>
-            <td>Distributeur sans monnaie rendue</td>
-            <td>MécaTrans</td>
-            <td>★★☆☆☆ (2/5)</td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
-        </tr>
-        <tr>
-            <td>20/10/2026 10:00</td>
-            <td>19/10/2026 10:00</td>
-            <td>Université</td>
-            <td>ECR-001</td>
-            <td>Écran éteint</td>
-            <td>TechniServices</td>
-            <td>★★★★☆ (4/5)</td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Détail</a></td>
+        <tr th:each="incident,iterator: ${incidents}">
+            <td th:text="${incident.id}" />
+
+            <td th:text="${incident.getDateOuverture()}" />
+            <td th:text="${incident.getEquipement().station.nom}" />
+
+            <td th:text="${incident.getEquipement().libelle}" />
+            <td th:text="${incident.description}" />
+
+            <td th:text="${incident.identifiant}" />
+
+
+            <td th:text="${incident.prestataire.nom}" />
+            <td th:text="${incident.getEvaluation()?.getNote()}" />
+            <td th:text="${incident.getEvaluation()?.getCommentaire()}" />
+
+
+            <br>
         </tr>
         </tbody>
     </table>

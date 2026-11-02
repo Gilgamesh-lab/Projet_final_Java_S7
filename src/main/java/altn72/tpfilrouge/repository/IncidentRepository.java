@@ -28,7 +28,7 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
             nativeQuery = true)
     List<NombreParStation> compterActifsParStation();
 
-    void deleteIncidentByEquipement_Id(Long equipementId);
+
 
     interface NombreParStation {
         String getStation();

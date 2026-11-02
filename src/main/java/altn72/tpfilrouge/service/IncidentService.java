@@ -3,7 +3,6 @@ package altn72.tpfilrouge.service;
 import altn72.tpfilrouge.modele.Incident;
 import altn72.tpfilrouge.modele.Statut;
 import altn72.tpfilrouge.repository.IncidentRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

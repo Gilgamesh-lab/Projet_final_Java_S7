@@ -58,7 +58,7 @@ public class IncidentControleur {
             liste = incidentService.getIncidentsEnCours();
         }
 
-        } else{
+        else{
             Indicateur indicateur = null;
             if(niveau != null && !niveau.isEmpty()){
                 indicateur = Indicateur.valueOf(niveau.toUpperCase().replace(" ", "_"));

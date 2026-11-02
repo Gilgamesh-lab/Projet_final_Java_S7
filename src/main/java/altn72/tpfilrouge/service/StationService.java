@@ -42,7 +42,6 @@ public class StationService {
     @Transactional
     public boolean supprimerStation(Long idStation) {
         if (!stationRepository.existsById(idStation)) return false;
-        incidentRepository.deleteIncidentByEquipement_Id(idStation);
         equipementRepository.deleteEquipementByStation(this.getUneStation(idStation).get());
         stationRepository.deleteById(idStation);
         return true;
