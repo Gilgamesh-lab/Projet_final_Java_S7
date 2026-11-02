@@ -47,7 +47,11 @@
 
 
             <td th:text="${incident.prestataire.nom}" />
-            <td th:text="${incident.getEvaluation()?.getNote()}" />
+            <td>
+                <span th:if="${incident.evaluation != null}" th:text="${incident.evaluation.note} + '/5'"></span>
+                <a th:if="${incident.evaluation == null and incident.prestataire != null and session.utilisateur?.responsable}"
+                   th:href="@{/incidents/{id}/evaluation(id=${incident.id})}" class="btn btn-sm btn-outline-success">Évaluer</a>
+            </td>
             <td th:text="${incident.getEvaluation()?.getCommentaire()}" />
 
 
