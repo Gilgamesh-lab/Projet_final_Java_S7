@@ -110,7 +110,7 @@
             <td th:text="${incident.prestataire?.getNom()}" />
 
             <td>
-                <form th:method="put" th:action="@{/incidents/changerPrestataire/{id}(id=${incident.id})}" method="put">
+                <form th:method="put" th:action="@{/incidents/changerPrestataire/{id}(id=${incident.id})}" method="PUT">
             <select name="prestataire" type="submit"  class="form-select mb-3 w-50" onchange="this.form.submit()">
                 <option value="">-- Choisir --</option>
                 <option th:each="prestataire : ${listePrestataire}"
@@ -120,8 +120,15 @@
                 </option>
             </select>
                 </form>
-        </tbody>
             </td>
+            <td>
+
+                <form th:method="put" th:action="@{/incidents/resolu/{id}(id=${incident.id})}"  method="PUT">
+                    <button type="submit" class="btn btn-primary">Résolu</button>
+                </form>
+            </td>
+        </tbody>
+
 
 
 

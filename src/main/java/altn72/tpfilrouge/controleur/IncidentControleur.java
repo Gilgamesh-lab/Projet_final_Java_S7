@@ -120,11 +120,21 @@ public class IncidentControleur {
         return "nouveauIncident";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/changerPrestataire/{id}")
-    public String changerPrestataire(@PathVariable Long id,
-                                     @RequestParam Long prestataire) {
+    public String changerPrestataire(@PathVariable Long id, @RequestParam Long prestataire) {
         Incident incident = incidentService.getUnIncident(id).get();
         incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
+        incidentService.modifierIncident(id, incident);
+        return "redirect:/incidents/tableau-de-bord";
+    }
+
+    @ReserveAuProfil(Profil.RESPONSABLE)
+    @PutMapping("/resolu/{id}")
+    public String incidentResolu(@PathVariable Long id) {
+        Incident incident = incidentService.getUnIncident(id).get();
+        incident.setStatut(Statut.RESOLU);
+        incident.setDateResolution(LocalDateTime.now());
         incidentService.modifierIncident(id, incident);
         return "redirect:/incidents/tableau-de-bord";
     }
