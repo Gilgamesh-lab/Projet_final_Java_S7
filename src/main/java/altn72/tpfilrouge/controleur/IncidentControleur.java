@@ -1,9 +1,6 @@
 package altn72.tpfilrouge.controleur;
 
-import altn72.tpfilrouge.modele.Incident;
-import altn72.tpfilrouge.modele.Indicateur;
-import altn72.tpfilrouge.modele.Profil;
-import altn72.tpfilrouge.modele.Station;
+import altn72.tpfilrouge.modele.*;
 import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -14,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,20 +25,24 @@ public class IncidentControleur {
     private IncidentService incidentService;
 
     @Autowired
+    private EquipementService equipementService;
+
+    @Autowired
     private IndicateurService indicateurService;
 
     @Autowired
     private TableauDeBordService tableauDeBordService;
+
     @Autowired
     private StationService stationService;
 
 
-    @GetMapping
+    /*@GetMapping
     public String afficherInfosIncidents(Model model){
         List<Incident> liste = incidentService.getIncidents();
         model.addAttribute("incidents", liste);
-        return "listeIncidents";
-    }
+        return "pageAccueil";
+    }*/
 
     @GetMapping("/historique")
     public String afficherHistorique(Model model){
@@ -94,11 +96,7 @@ public class IncidentControleur {
         return "detailsIncident";
     }
 
-    @GetMapping("/nouvelle")
-    public String preparerAjoutIncident(Model model) {
-        model.addAttribute("nouveauIncident", new Incident());
-        return "nouveauIncident";
-    }
+
 
     @DeleteMapping("/{id}")
     public String deleteIncident(@PathVariable("id") Long id) {
@@ -110,12 +108,20 @@ public class IncidentControleur {
     }
 
 
-    @PostMapping
-    public String creerIncident(@ModelAttribute Incident incident){
-        incidentService.ajouterIncident(incident);
-        return "redirect:/equipements";
+    @GetMapping("/declarer")
+    public String declarerUnIncident(Model model){
+        model.addAttribute("nouveauIncident", new Incident());
+        model.addAttribute("equipements", equipementService.getEquipements());
+        model.addAttribute("statuts", Statut.values());
+        return "nouveauIncident";
     }
 
+    @PostMapping("/nouveau")
+    public String creerIncident(@ModelAttribute("nouveauIncident") Incident incident) {
+        incident.setDateOuverture(LocalDateTime.now());
+        incidentService.ajouterIncident(incident);
+        return "redirect:/";
+    }
 
     @PutMapping("/modifier/{id}")
     public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute Incident incidentModified ){

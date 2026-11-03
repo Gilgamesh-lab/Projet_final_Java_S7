@@ -10,6 +10,7 @@
         <li class="nav-item"><a class="nav-link" th:href="@{/stations}">Stations</a></li>
         <li class="nav-item" th:if="${session.utilisateur?.responsable}"><a class="nav-link" th:href="@{/incidents/tableau-de-bord}">Tableau de bord</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/equipements}">Équipements</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/incidents/declarer}">Déclarer un incident</a></li>
         <li class="nav-item"><a class="nav-link" th:href="@{/incidents/historique}">Historique</a></li>
     </ul>
     <span class="navbar-text text-light">

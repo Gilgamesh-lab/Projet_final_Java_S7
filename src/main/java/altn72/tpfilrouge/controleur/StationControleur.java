@@ -54,8 +54,8 @@ public class StationControleur {
     }
 
 
-    @PostMapping
-    public String creerStation(@ModelAttribute Station station){
+    @PostMapping("/creer")
+    public String creerStation(@ModelAttribute("nouvelleStation") Station station){
         stationService.ajouterStation(station);
         return "redirect:/stations";
     }
