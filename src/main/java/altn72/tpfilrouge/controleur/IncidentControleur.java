@@ -36,6 +36,9 @@ public class IncidentControleur {
     @Autowired
     private StationService stationService;
 
+    @Autowired
+    private PrestataireService prestataireService;
+
 
     /*@GetMapping
     public String afficherInfosIncidents(Model model){
@@ -83,6 +86,7 @@ public class IncidentControleur {
         model.addAttribute("nbIncidentRouge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ROUGE)).count());
         model.addAttribute("nbIncidentOrange", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ORANGE)).count());
         model.addAttribute("nbIncidentPrisEnCharge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.PRIS_EN_CHARGE)).count());
+        model.addAttribute("listePrestataire", prestataireService.getPrestataires());
         model.addAttribute("niveau", liste.stream().map(incident -> indicateurService.calculer(incident)).collect(Collectors.toList()));
         return "tableauDeBord";
     }
@@ -114,6 +118,15 @@ public class IncidentControleur {
         model.addAttribute("equipements", equipementService.getEquipements());
         model.addAttribute("statuts", Statut.values());
         return "nouveauIncident";
+    }
+
+    @PutMapping("/changerPrestataire/{id}")
+    public String changerPrestataire(@PathVariable Long id,
+                                     @RequestParam Long prestataire) {
+        Incident incident = incidentService.getUnIncident(id).get();
+        incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
+        incidentService.modifierIncident(id, incident);
+        return "redirect:/incidents/tableau-de-bord";
     }
 
     @PostMapping("/nouveau")

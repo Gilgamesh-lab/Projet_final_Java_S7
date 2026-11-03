@@ -88,10 +88,12 @@
 
             <th>Identifiant</th>
             <th>Statut</th>
-            <th></th>
+
+            <th>Affecter ou réaffecter un prestataire</th>
         </tr>
         </thead>
         <tbody>
+
         <tr th:each="incident,iterator: ${incidents}">
             <td th:text="${incident.id}" />
             <td th:text="${niveau[iterator.index]}" />
@@ -105,10 +107,27 @@
             <td th:text="${incident.identifiant}" />
             <td th:text="${incident.statut}" />
 
+            <td th:text="${incident.prestataire?.getNom()}" />
+
+            <td>
+                <form th:method="put" th:action="@{/incidents/changerPrestataire/{id}(id=${incident.id})}" method="put">
+            <select name="prestataire" type="submit"  class="form-select mb-3 w-50" onchange="this.form.submit()">
+                <option value="">-- Choisir --</option>
+                <option th:each="prestataire : ${listePrestataire}"
+                        th:value="${prestataire.id}"
+                        th:text="${prestataire.nom}"
+                        th:selected="${incident.prestataire != null and prestataire.id == incident.prestataire.id}">
+                </option>
+            </select>
+                </form>
+        </tbody>
+            </td>
+
+
 
             <br>
         </tr>
-        </tbody>
+
     </table>
 </div>
 
