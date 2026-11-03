@@ -53,8 +53,10 @@ public class IncidentService {
     public void modifierIncident(Long idIncident, Incident incidentModified) {
        Incident incidentModify = incidentRepository.findById(idIncident).get();
        if(incidentModify != null){
-           incidentModify.setDescription(incidentModified.getDescription());
-           incidentRepository.save(incidentModify);
+           incidentRepository.setIncidentInfoById(incidentModified.getIdentifiant(),
+                   incidentModified.getEquipement(),incidentModified.getDescription(), incidentModified.getDateOuverture(), incidentModified.getStatut(),
+                   incidentModified.getPrestataire(), incidentModified.getDateResolution(), incidentModified.getEvaluation(),
+                   incidentModified.getId());
        }
 
     }

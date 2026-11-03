@@ -1,10 +1,12 @@
 package altn72.tpfilrouge.repository;
 
-import altn72.tpfilrouge.modele.Incident;
-import altn72.tpfilrouge.modele.Statut;
+import altn72.tpfilrouge.modele.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -34,4 +36,10 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
         String getStation();
         Long getNombre();
     }
+
+    @Modifying
+    @Query("update Incident u set u.identifiant = ?1, u.equipement = ?2, u.description = ?3, u.dateOuverture = ?4, u.statut = ?5" +
+            ", u.prestataire = ?6, u.dateResolution = ?7, u.evaluation = ?8 where u.id = ?9")
+    void setIncidentInfoById(String identifiant, Equipement equipement, String description, LocalDateTime dateOuverture,
+                               Statut statut, Prestataire prestataire, LocalDateTime dateResolution, Evaluation evaluation, Long id);
 }
