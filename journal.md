@@ -190,8 +190,8 @@ MariaDB (schema.sql + data.sql)
     des pages, connexion / déconnexion et droits par profil (F1), calcul de l'indicateur d'urgence, service et
     requêtes du tableau de bord (F11), évaluation des prestataires (F10), pages d'erreur, tests unitaires, journal.md ;
   - Fabrice AMEGADJEN : entités JPA, stations (`StationRepository`, `StationService`, `StationControleur`),
-    configuration PostgreSQL, alimentation du Tableau de bord,des pages equipements, stations, équipements, incidents et historiques
-   signaler un incident(F4), Affecter ou réaffecter un prestataire(f7), Déclarer un incident résolu(F8)
+    configuration PostgreSQL, aliments, stations, équipements, incidents et historiques
+   signaler un incident(F4), Affecter ou réaffecter un prestataire(f7), Déclarer un incident résolu(F8), Creation Api Rest
 - Plus grande difficulté et comment elle a été surmontée : à compléter
 - Fonctionnalités non réalisées et pourquoi : à compléter
 - Trois points à retenir du cours et du projet : à compléter

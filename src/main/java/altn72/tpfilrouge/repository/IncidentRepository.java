@@ -15,6 +15,8 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
 
     List<Incident> findByStatutOrderByDateResolutionDesc(Statut statut);
 
+    Incident findByIdentifiant(String identifiant);
+
 
     // JOIN FETCH : équipement, station et prestataire chargés en une seule requête au lieu d'une par incident
     @Query(value = "SELECT i FROM Incident i JOIN FETCH i.equipement e JOIN FETCH e.station LEFT JOIN FETCH i.prestataire " +

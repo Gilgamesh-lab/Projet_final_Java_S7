@@ -11,7 +11,7 @@
 
 <div class="container">
     <h1>Ajout d'un nouveau incident</h1>
-
+    <h2>[[${erreur}]]</h2>
     <form th:action="@{/incidents/nouveau}" th:object="${nouveauIncident}" method="POST">
 
         <label class="form-label" for="identifiant">Identifiant</label>
@@ -29,16 +29,8 @@
 
 
         <label class="form-label" for="description">Description</label>
-        <input type="text" th:field="*{description}" class="form-control mb-3 w-50">
+        <input type="text" th:field="*{description}" class="form-control mb-3 w-50" required>
 
-        <label class="form-label" for="statut">Statut</label>
-        <select th:field="*{statut}" class="form-select mb-3 w-50">
-            <option value="">-- Choisir --</option>
-            <option th:each="statut : ${statuts}"
-                    th:value="${statut}"
-                    th:text="${statut.libelle}">
-            </option>
-        </select>
 
         <button type="submit" class="btn btn-primary">Enregistrez</button>
     </form>

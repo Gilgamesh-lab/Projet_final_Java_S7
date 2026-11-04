@@ -25,6 +25,10 @@ public class IncidentService {
         return incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.RESOLU);
     }
 
+    public Incident getIncidentByIdentifiant(String identifiant) {
+        return incidentRepository.findByIdentifiant(identifiant);
+    }
+
     public List<Incident> getIncidentsEnCours() {
         List<Incident> incidents = incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.EN_COURS);
         incidents.addAll(incidentRepository.findByStatutOrderByDateResolutionDesc(Statut.NOUVEAU));
@@ -51,12 +55,11 @@ public class IncidentService {
 
     @Transactional
     public void modifierIncident(Long idIncident, Incident incidentModified) {
-       Incident incidentModify = incidentRepository.findById(idIncident).get();
-       if(incidentModify != null){
+       if(incidentModified != null){
            incidentRepository.setIncidentInfoById(incidentModified.getIdentifiant(),
                    incidentModified.getEquipement(),incidentModified.getDescription(), incidentModified.getDateOuverture(), incidentModified.getStatut(),
                    incidentModified.getPrestataire(), incidentModified.getDateResolution(), incidentModified.getEvaluation(),
-                   incidentModified.getId());
+                   idIncident);
        }
 
     }

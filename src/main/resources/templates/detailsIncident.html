@@ -23,25 +23,21 @@
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Description</dt>
-                        <dd class="col-sm-8">Câble de traction à contrôler</dd>
+                        <dd class="col-sm-8">[[${incidentToUpdate.description}]]</dd>
                         <dt class="col-sm-4">Équipement</dt>
-                        <dd class="col-sm-8"><a href="#">ASC-001 — Ascenseur quai A</a></dd>
+                        <dd class="col-sm-8">[[${incidentToUpdate.equipement.libelle}]]</dd>
                         <dt class="col-sm-4">Station</dt>
-                        <dd class="col-sm-8">Gare Centrale</dd>
+                        <dd class="col-sm-8">[[${incidentToUpdate.equipement.station.nom}]]</dd>
                         <dt class="col-sm-4">Ouverture</dt>
-                        <dd class="col-sm-8">25/10/2026 22:05</dd>
-                        <dt class="col-sm-4">Durée d'ouverture</dt>
-                        <dd class="col-sm-8">3 j 8 h</dd>
+                        <dd class="col-sm-8">[[${incidentToUpdate.dateOuverture}]]</dd>
                         <dt class="col-sm-4">Prestataire</dt>
-                        <dd class="col-sm-8">Ascenseurs Dupont</dd>
-                        <dt class="col-sm-4">Résolution</dt>
-                        <dd class="col-sm-8">—</dd>
+                        <dd class="col-sm-8">[[${incidentToUpdate.prestataire.nom}]]</dd>
                     </dl>
                 </div>
             </div>
         </div>
 
-        <!--/* Actions réservées au responsable d'exploitation, masquées si l'incident est résolu (RG5) */-->
+        <!--/* Actions réservées au responsable d'exploitation, masquées si l'incident est résolu (RG5)
         <div class="col-md-5">
             <div class="card mb-4">
                 <div class="card-header">Affecter / réaffecter un prestataire (F7)</div>
@@ -64,13 +60,13 @@
                         <button type="submit" class="btn btn-success w-100">Déclarer l'incident résolu</button>
                     </form>
                 </div>
-            </div>
+            </div>*/-->
 
             <div class="card">
                 <div class="card-header">Modifier la description (F6)</div>
                 <div class="card-body">
-                    <form th:method="put" th:action="@{/incidents/modifier/{id}(id=${incidentToUpdate.id})}" method="put">
-                        <textarea name="description" rows="3" class="form-control mb-2">Câble de traction à contrôler</textarea>
+                    <form name="incidentToUpdate" th:method="put" th:object="${incidentToUpdate}" th:action="@{/incidents/modifier/{id}(id=${incidentToUpdate.id})}" method="put">
+                        <input type="text" th:field="*{description}" class="form-control mb-3 w-50">
                         <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
                     </form>
                 </div>

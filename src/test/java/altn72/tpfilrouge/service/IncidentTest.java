@@ -64,7 +64,6 @@ public class IncidentTest {
 
     @Test
     void testModifierIncident() {
-        when(incidentRepository.findById(1L)).thenReturn(Optional.ofNullable(incident));
         incidentService.modifierIncident(incident.getId(), incident);
         verify(incidentRepository).setIncidentInfoById(incident.getIdentifiant(),
                 incident.getEquipement(),incident.getDescription(), incident.getDateOuverture(), incident.getStatut(),

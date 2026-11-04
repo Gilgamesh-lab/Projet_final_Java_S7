@@ -136,6 +136,7 @@ public class IncidentControleur {
         model.addAttribute("nouveauIncident", new Incident());
         model.addAttribute("equipements", equipementService.getEquipements());
         model.addAttribute("statuts", Statut.values());
+        model.addAttribute("erreur", "");
         return "nouveauIncident";
     }
 
@@ -144,6 +145,7 @@ public class IncidentControleur {
     public String changerPrestataire(@PathVariable("id") Long id, @RequestParam("prestataire") Long prestataire) {
         Incident incident = incidentService.getUnIncident(id).get();
         incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
+        incident.setStatut(Statut.EN_COURS);
         incidentService.modifierIncident(id, incident);
         return "redirect:/incidents/tableau-de-bord";
     }
@@ -152,22 +154,39 @@ public class IncidentControleur {
     @PutMapping("/resolu/{id}")
     public String incidentResolu(@PathVariable("id") Long id) {
         Incident incident = incidentService.getUnIncident(id).get();
-        incident.setStatut(Statut.RESOLU);
-        incident.setDateResolution(LocalDateTime.now());
-        incidentService.modifierIncident(id, incident);
+
+        if(incident.getStatut() != Statut.EN_COURS){
+            incident.setStatut(Statut.RESOLU);
+            incident.setDateResolution(LocalDateTime.now());
+            incidentService.modifierIncident(id, incident);
+        }
+        
         return "redirect:/incidents/tableau-de-bord";
     }
 
     @PostMapping("/nouveau")
-    public String creerIncident(@ModelAttribute("nouveauIncident") Incident incident) {
-        incident.setDateOuverture(LocalDateTime.now());
-        incidentService.ajouterIncident(incident);
-        return "redirect:/";
+    public String creerIncident(@ModelAttribute("nouveauIncident") Incident incident, Model model) {
+        if(incidentService.getIncidentByIdentifiant(incident.getIdentifiant()) != null){
+            model.addAttribute("erreur", "Cet identifiant existe déjà, veuillez en choisir un autre");
+            model.addAttribute("nouveauIncident", new Incident());
+            model.addAttribute("equipements", equipementService.getEquipements());
+            model.addAttribute("statuts", Statut.values());
+            return "nouveauIncident";
+        }
+        else{
+            incident.setDateOuverture(LocalDateTime.now());
+            incident.setStatut(Statut.NOUVEAU);
+            incidentService.ajouterIncident(incident);
+            return "redirect:/";
+        }
+
     }
 
     @PutMapping("/modifier/{id}")
-    public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute Incident incidentModified ){
-        incidentService.modifierIncident(id,incidentModified);
+    public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute("incidentToUpdate") Incident incidentModified ){
+        Incident incident = incidentService.getUnIncident(id).get();
+        incident.setDescription(incidentModified.getDescription());
+        incidentService.modifierIncident(id,incident);
         return "redirect:/equipements";
     }
 

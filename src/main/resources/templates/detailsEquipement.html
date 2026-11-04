@@ -57,7 +57,7 @@
             <td th:text="${incident.prestataire?.nom}" />
             <td th:text="${incident.dateResolution}" />
             <td>
-                <form th:action="@{/incidents/{id}(id=${incident.id})}"  th:method="GET" style="display:inline;">
+                <form  th:action="@{/incidents/{id}(id=${incident.id})}"   th:method="GET" style="display:inline;">
                     <button class="btn btn-info btn-sm">Détails</button>
                 </form>
 
