@@ -8,7 +8,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,4 +65,18 @@ public class StationService {
             return stationToModify;
         });
     }
+
+
+
+
+    @Transactional
+    public int importerJson(MultipartFile fichier) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try (InputStream in = fichier.getInputStream()) {
+            List<Station> stations = objectMapper.readValue(in, new TypeReference<List<Station>>() {});
+            stationRepository.saveAll(stations);
+            return stations.size();
+        }
+    }
+
 }

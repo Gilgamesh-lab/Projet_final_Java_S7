@@ -7,9 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -59,6 +62,23 @@ public class StationControleur {
         stationService.ajouterStation(station);
         return "redirect:/stations";
     }
+
+    @PostMapping("/importer")
+    public String importer(@RequestParam("fichier") MultipartFile fichier,
+                           RedirectAttributes redirect) {
+        if (fichier.isEmpty()) {
+            redirect.addFlashAttribute("erreur", "Aucun fichier sélectionné");
+            return "redirect:/stations";
+        }
+        try {
+            int nb = stationService.importerJson(fichier);
+            redirect.addFlashAttribute("message", nb + " station(s) importée(s)");
+        } catch (IOException e) {
+            redirect.addFlashAttribute("erreur", "JSON invalide : " + e.getMessage());
+        }
+        return "redirect:/stations";
+    }
+
 
 
     @PutMapping("/{id}")

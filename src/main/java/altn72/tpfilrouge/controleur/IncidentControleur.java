@@ -5,14 +5,14 @@ import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import tools.jackson.databind.ObjectMapper;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -53,13 +53,14 @@ public class IncidentControleur {
     }
 
     @PutMapping("api/modifier/{id}")
-    public ResponseEntity modifierIncident(@RequestBody Incident incident, @PathVariable Long id){
+    public ResponseEntity modifierIncident(@RequestBody Incident incident, @PathVariable("id") Long id){
         if(incidentService.getUnIncident(id).isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(null);
         }
         else{
             incidentService.modifierIncident(id,incident);
             Map<String, Object> response = new HashMap<>();
+            incident.getEvaluation().setIncident(null);
             response.put("incidentModifié", incident);
             return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
         }
@@ -116,6 +117,15 @@ public class IncidentControleur {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas"));
         model.addAttribute("incidentToUpdate", incident);
+        if(Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toMinutes() >= 60) {
+            model.addAttribute("durée", Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toHours() + "h");
+        } else if (Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toHours() >= 24) {
+            model.addAttribute("durée", Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toHours() + "j");
+        }
+        else{
+            model.addAttribute("durée", Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toMinutes() + "min");
+        }
+
         return "detailsIncident";
     }
 
@@ -127,7 +137,7 @@ public class IncidentControleur {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas");
         }
-        return "redirect:/listeEquipement";    // "redirect:" + une ROUTE (pas un nom de template) : ici celle de la liste
+        return "redirect:/equipements";    
     }
 
 
@@ -144,10 +154,29 @@ public class IncidentControleur {
     @PutMapping("/changerPrestataire/{id}")
     public String changerPrestataire(@PathVariable("id") Long id, @RequestParam("prestataire") Long prestataire) {
         Incident incident = incidentService.getUnIncident(id).get();
-        incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
-        incident.setStatut(Statut.EN_COURS);
-        incidentService.modifierIncident(id, incident);
+        if(incident.getStatut() != Statut.RESOLU){
+            incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
+            incident.setStatut(Statut.EN_COURS);
+            incidentService.modifierIncident(id, incident);
+
+        }
         return "redirect:/incidents/tableau-de-bord";
+    }
+
+    @GetMapping("/exporter")
+    public ResponseEntity<byte[]> exporter()  {
+        List<Incident> incidents = incidentService.getIncidents();
+        incidents.stream().forEach(incident -> {incident.setEvaluation(null);}); // pansement pour éviter de devoir créer une classe DTO
+        ObjectMapper objectMapper =  new ObjectMapper();
+        byte[] json = objectMapper
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsBytes(incidents);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment().filename("incidents.json").build().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(json);
     }
 
     @ReserveAuProfil(Profil.RESPONSABLE)
@@ -155,7 +184,7 @@ public class IncidentControleur {
     public String incidentResolu(@PathVariable("id") Long id) {
         Incident incident = incidentService.getUnIncident(id).get();
 
-        if(incident.getStatut() != Statut.EN_COURS){
+        if(incident.getStatut() != Statut.RESOLU){
             incident.setStatut(Statut.RESOLU);
             incident.setDateResolution(LocalDateTime.now());
             incidentService.modifierIncident(id, incident);

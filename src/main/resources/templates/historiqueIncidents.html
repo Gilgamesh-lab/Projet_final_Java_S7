@@ -33,6 +33,7 @@
             <th></th>
         </tr>
         </thead>
+        <a th:href="@{/incidents/exporter}" class="btn btn-secondary">Exporter en JSON</a>
         <tbody>
         <tr th:each="incident,iterator: ${incidents}">
             <td th:text="${incident.id}" />

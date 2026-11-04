@@ -45,6 +45,14 @@
     <form th:action="@{/stations/nouvelle}">
         <button class="btn btn-primary">Ajoutez</button>
     </form>
+    <form th:method="post" th:action="@{/stations/importer}" method="post" enctype="multipart/form-data">
+        <input type="file" name="fichier" accept=".json,application/json"
+               class="form-control w-50 mb-3" onchange="this.form.submit()" required>
+        <button type="submit" class="btn btn-primary">Importer</button>
+    </form>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${erreur}" class="alert alert-danger" th:text="${erreur}"></div>
 
 </div>
 </body>

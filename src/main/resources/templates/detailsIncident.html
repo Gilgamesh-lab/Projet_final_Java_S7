@@ -30,8 +30,14 @@
                         <dd class="col-sm-8">[[${incidentToUpdate.equipement.station.nom}]]</dd>
                         <dt class="col-sm-4">Ouverture</dt>
                         <dd class="col-sm-8">[[${incidentToUpdate.dateOuverture}]]</dd>
+                        <dt class="col-sm-4">Durée</dt>
+                        <dd class="col-sm-8">[[${durée}]]</dd>
                         <dt class="col-sm-4">Prestataire</dt>
-                        <dd class="col-sm-8">[[${incidentToUpdate.prestataire.nom}]]</dd>
+                        <dd class="col-sm-8">[[${incidentToUpdate.prestataire?.nom}]]</dd>
+                        <dt class="col-sm-4">Evaluation</dt>
+                        <dd class="col-sm-8">[[${incidentToUpdate.evaluation?.note}]]</dd>
+                        <dt class="col-sm-4">Commentaire</dt>
+                        <dd class="col-sm-8">[[${incidentToUpdate.evaluation?.commentaire}]]</dd>
                     </dl>
                 </div>
             </div>
