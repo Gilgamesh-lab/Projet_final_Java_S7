@@ -35,8 +35,8 @@ public class ConnexionControleur {
     }
 
     @PostMapping("/login")
-    public String connecter(@RequestParam(defaultValue = "") String login,
-                            @RequestParam(defaultValue = "") String motDePasse,
+    public String connecter(@RequestParam(name = "login", defaultValue = "") String login,
+                            @RequestParam(name = "motDePasse", defaultValue = "") String motDePasse,
                             HttpServletRequest request, Model model) {
         Optional<UtilisateurConnecte> utilisateur = connexionService.authentifier(login, motDePasse);
 
