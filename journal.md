@@ -23,7 +23,8 @@
   - variante PostgreSQL (tables créées par Hibernate, sans données de démonstration) :
     `./mvnw spring-boot:run -Dspring-boot.run.profiles=fabrice`.
 - Tests : `./mvnw verify` (tests unitaires, sans base de données).
-- Application déployée : à compléter
+- Application déployée : https://projetfinaljavas7-production-a95e.up.railway.app
+  (Railway, à partir du `Dockerfile` du dépôt, avec une base MySQL 8 configurée par `DB_URL`, `DB_USER` et `DB_PASSWORD`).
 - Comptes de test :
   - Responsable d'exploitation : `responsable` / `responsable123`
   - Agent : `agent` / `agent123`
@@ -33,7 +34,10 @@
   - 2 incidents en cours affectés à un prestataire, 3 incidents résolus dont 2 évalués et 1 à évaluer (F10).
 - Limites connues :
   - `schema.sql` est écrit pour MariaDB (`AUTO_INCREMENT`, `ENUM`, `UNSIGNED`) : il ne s'exécute pas tel quel sous PostgreSQL ;
-  - la base est recréée à chaque démarrage : les données saisies pendant une démonstration sont perdues au redémarrage.
+  - la base est recréée à chaque démarrage : les données saisies pendant une démonstration sont perdues au redémarrage,
+    y compris sur la version déployée à chaque redéploiement ;
+  - Railway a signalé un incident au moment du déploiement : certains réseaux bloquent ses adresses. Si l'URL ne répond
+    pas, essayer un autre réseau (partage de connexion par exemple) ou lancer l'application en local.
 
 ## ARCHITECTURE
 - Dépôt : https://github.com/Gilgamesh-lab/Projet_final_Java_S7
@@ -49,7 +53,7 @@
 Navigateur
    │  requête HTTP
    ▼
-ConnexionInterceptor ── non connecté ──► /login (401 pour /api/**)
+ConnexionInterceptor ── non connecté ──► /login
    │  profil interdit ──► 403
    ▼
 Contrôleurs (controleur) ──► vues Thymeleaf (templates, error/404 et error/403)
@@ -61,7 +65,7 @@ Services (service) ── règles métier, IndicateurService + Clock
 Repositories Spring Data JPA (repository)
    │
    ▼
-MariaDB (schema.sql + data.sql)
+MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
 ```
 
 ## TESTS
@@ -70,7 +74,7 @@ MariaDB (schema.sql + data.sql)
   permet de tester précisément les seuils sans dépendre de l'heure réelle. Les repositories sont remplacés par des
   objets simulés (Mockito) : on teste la logique du service, pas la base.
 - Commande : `./mvnw verify`
-- Couvert (22 tests) :
+- Couvert (41 tests) :
   - calcul de l'indicateur d'urgence (`IndicateurServiceTest`, 8 tests) :
     - non affecté ouvert depuis 47 h et 47 h 59 : vert ;
     - 48 h pile et 71 h 59 : orange ;
@@ -83,8 +87,15 @@ MariaDB (schema.sql + data.sql)
   - évaluation (`EvaluationServiceTest`, 7 tests) : évaluation d'un incident résolu et affecté, refus d'un incident
     non résolu, sans prestataire ou déjà évalué, refus des notes 0, 6 et vide, acceptation des limites 1 et 5 ;
     en cas de refus, on vérifie que rien n'est enregistré.
+  - statistiques (`StatistiquesServiceTest`, 4 tests) : ordre des stations, quatre indicateurs dans l'ordre, arrondi de
+    la note moyenne, graphique vide sans évaluation.
+  - services des incidents, équipements et stations (`IncidentTest`, `EquipementTest`, `StationTest`, 5 tests chacun) :
+    lecture, ajout, modification et suppression.
 - Non couvert :
-  - les contrôleurs et les pages (pas de tests MockMvc) : vérifiés à la main avec les deux comptes de test ;
+  - les contrôleurs, les pages et l'API REST (pas de tests MockMvc) : vérifiés à la main ;
+  - les règles de F7 et F8, écrites dans le contrôleur, donc hors des tests de service ;
+  - le démarrage complet de l'application : un test `@SpringBootTest` aurait besoin d'une base disponible, alors que
+    `./mvnw verify` doit fonctionner sans base ;
   - les requêtes JPQL et native : pas de tests `@DataJpaTest`, il faudrait une base de test (H2 ou Testcontainers)
     compatible avec `schema.sql`. Elles ont été vérifiées en lançant l'application sur MariaDB avec `data.sql`.
 
@@ -108,8 +119,7 @@ MariaDB (schema.sql + data.sql)
   - seul `spring-security-crypto` est utilisé, pour le hachage BCrypt des mots de passe (jamais stockés en clair, §7.7) ;
   - en session on garde un objet `UtilisateurConnecte` (id, prénom, profil), jamais le mot de passe haché ;
   - l'identifiant de session est régénéré après la connexion (fixation de session) ;
-  - un utilisateur non connecté est redirigé vers `/login` ; pour l'API (`/api/**`) on renvoie 401,
-    un client REST ne sait pas suivre une page HTML ;
+  - un utilisateur non connecté est redirigé vers `/login`, y compris pour l'API (`/incidents/api`) ;
   - les droits du tableau ci-dessus sont appliqués côté serveur avec l'annotation `@ReserveAuProfil` posée sur les
     méthodes des contrôleurs : un profil non autorisé reçoit une 403, même s'il tape l'URL à la main.
     Masquer les boutons dans les vues n'est qu'un confort en plus.
@@ -158,7 +168,7 @@ MariaDB (schema.sql + data.sql)
     tester `IndicateurService` avec une horloge fixe, et on pourrait changer d'algorithme de hachage sans toucher
     à `ConnexionService`.
 - Requête SQL native : `IncidentRepository.compterActifsParStation()`, nombre d'incidents non résolus par station,
-  affiché sur le tableau de bord. Le résultat est lu à travers une interface de projection (`NombreParStation`) plutôt
+  affiché sur la page Statistiques. Le résultat est lu à travers une interface de projection (`NombreParStation`) plutôt
   qu'un tableau `Object[]`.
   - Intérêt : un regroupement simple sur trois tables (`station`, `equipement`, `incident`), écrit exactement comme
     on l'écrirait en SQL, et calculé par la base sans charger tous les incidents en mémoire.
@@ -180,18 +190,44 @@ MariaDB (schema.sql + data.sql)
   - pas de `@Transactional` sur les méthodes de simple lecture : il n'apporte rien sans écriture.
 
 ## LOT ALPHA
-### Fonctionnalité transverse 1 : à compléter
-- Besoin · périmètre envisagé · choix et essais · ce qui fonctionne · difficultés · reste à faire
-### Fonctionnalité transverse 2 : à compléter
+### Fonctionnalité transverse 1 : visualisation des données (piste 2)
+- Besoin : donner au responsable d'exploitation une vue d'ensemble que le tableau de bord, ligne par ligne, ne montre
+  pas : où se concentrent les incidents, leur niveau d'attention et la qualité des prestataires.
+- Périmètre : une page `/statistiques`, réservée au responsable, avec trois graphiques : incidents actifs par station,
+  incidents actifs par niveau d'attention, note moyenne des prestataires.
+- Choix et essais :
+  - Chart.js, chargé depuis un CDN : simple, sans étape de construction côté front ;
+  - `th:inline="javascript"` : Thymeleaf écrit les listes Java directement dans la page, sans appel supplémentaire ;
+  - agrégations faites par la base (requête native par station, JPQL `AVG` / `COUNT` par prestataire) plutôt qu'en Java ;
+  - réutilisation de `TableauDeBordService.getCompteurs()` pour que les chiffres restent cohérents avec le tableau de bord ;
+  - une page à part, pour ne pas fragiliser le tableau de bord du socle.
+- Ce qui fonctionne : les trois graphiques, les messages quand il n'y a pas de données, la restriction au responsable
+  (403 pour l'agent), 4 tests unitaires sur la préparation des données.
+- Difficultés : la requête native écrite avec des majuscules (`FROM Station`) fonctionnait sous Windows mais n'aurait
+  pas fonctionné sous Linux ; nous l'avons remise en minuscules avant le déploiement.
+- Reste à faire : l'évolution dans le temps (incidents par semaine, délais de résolution) ; les prestataires sans
+  évaluation n'apparaissent pas dans le troisième graphique.
+### Fonctionnalité transverse 2 : export CSV de l'historique (piste 9)
+- Besoin · périmètre envisagé · choix et essais · ce qui fonctionne · difficultés · reste à faire : à compléter
 
 ## BILAN
 - Contribution de chacun :
   - Christophe HUANG : base de données (`schema.sql`, `data.sql`), alignement des entités sur le schéma, maquettes
     des pages, connexion / déconnexion et droits par profil (F1), calcul de l'indicateur d'urgence, service et
-    requêtes du tableau de bord (F11), évaluation des prestataires (F10), pages d'erreur, tests unitaires, journal.md ;
+    requêtes du tableau de bord (F11), évaluation des prestataires (F10), statistiques (lot alpha), pages d'erreur,
+    tests unitaires, configuration et déploiement, journal.md ;
   - Fabrice AMEGADJEN : entités JPA, stations (`StationRepository`, `StationService`, `StationControleur`),
-    configuration PostgreSQL, aliments, stations, équipements, incidents et historiques
-   signaler un incident(F4), Affecter ou réaffecter un prestataire(f7), Déclarer un incident résolu(F8), Creation Api Rest
-- Plus grande difficulté et comment elle a été surmontée : à compléter
+    configuration PostgreSQL, alimentation des pages stations, équipements, incidents, historique et tableau de bord,
+    signaler un incident (F4), affecter ou réaffecter un prestataire (F7), déclarer un incident résolu (F8),
+    API REST (F12), tests des services.
+- Plus grande difficulté et comment elle a été surmontée : travailler chacun sur une base différente (MariaDB et
+  PostgreSQL). Sous PostgreSQL, les tables étaient créées par Hibernate à partir du code ; une modification pouvait donc
+  fonctionner d'un côté et casser `schema.sql` ou `data.sql` de l'autre, comme le renommage d'une valeur de `Profil`,
+  qui bloquait la connexion du responsable. Nous avons retenu MariaDB comme référence, et relancé l'application avec
+  les données de démonstration pour vérifier les changements.
 - Fonctionnalités non réalisées et pourquoi : à compléter
-- Trois points à retenir du cours et du projet : à compléter
+- Trois points à retenir du cours et du projet :
+  - la séparation en couches : les règles métier dans les services sont testables sans base ni navigateur ;
+  - les règles et les droits s'appliquent côté serveur : masquer un bouton ne protège rien ;
+  - tester tôt avec de vraies données et un environnement proche du déploiement révèle des erreurs invisibles en
+    local, comme la casse des noms de tables.
