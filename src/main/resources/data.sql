@@ -43,6 +43,6 @@ INSERT INTO incident (identifiant, equipement_id, description, date_ouverture, s
 ('INC-010', 2, 'Marche bloquée sur l''escalator', NOW() - INTERVAL 3 DAY, 'RESOLU', 1, NOW() - INTERVAL 1 DAY);
 
 -- Incident INC-010 volontairement non évalué pour démontrer F10
-INSERT INTO evaluation (incident_id, note, commentaire, date_evaluation) VALUES
-(8, 4, 'Intervention rapide et propre.', NOW() - INTERVAL 8 DAY),
-(9, 2, 'Résolution tardive, a nécessité un second passage.', NOW() - INTERVAL 3 DAY);
+INSERT INTO evaluation (note, commentaire, date_evaluation) VALUES
+(4, 'Intervention rapide et propre.', NOW() - INTERVAL 8 DAY),
+(2, 'Résolution tardive, a nécessité un second passage.', NOW() - INTERVAL 3 DAY);
