@@ -3,15 +3,26 @@
 **Groupe :** Christophe HUANG, Fabrice AMEGADJEN
 
 ## README
-- Prérequis : Java 25, Maven (wrapper `mvnw` fourni), MariaDB ou PostgreSQL.
-- Configuration : la connexion à la base se règle dans `src/main/resources/application.properties`
-  (ou un profil local non versionné, par exemple `application-christophe.properties` / `application-fabrice.properties`).
-- Initialiser la base (MariaDB) : créer une base vide `Base_ALTN72` et ajouter `spring.sql.init.mode=always`
-  à la configuration. Au démarrage, Spring exécute `src/main/resources/schema.sql` (tables) puis
-  `src/main/resources/data.sql` (données de démonstration) : la base est recréée à chaque lancement.
+- Prérequis : Java 25, Maven (wrapper `mvnw` fourni), MariaDB (ou MySQL).
+- Initialiser la base : créer une base vide `Base_ALTN72`. Au démarrage, Spring exécute
+  `src/main/resources/schema.sql` (tables) puis `src/main/resources/data.sql` (données de démonstration) :
+  la base est recréée à chaque lancement.
+- Configuration : aucun mot de passe n'est écrit dans le dépôt. La connexion se règle par variables
+  d'environnement, avec des valeurs par défaut pour un MariaDB local :
+
+  | Variable | Rôle | Valeur par défaut |
+  |---|---|---|
+  | `DB_URL` | URL JDBC | `jdbc:mariadb://localhost:3306/Base_ALTN72` |
+  | `DB_USER` | utilisateur | `root` |
+  | `DB_PASSWORD` | mot de passe | vide |
+  | `DB_INIT_MODE` | `always` pour recréer la base au démarrage, `never` sinon | `always` |
+
 - Lancer : `./mvnw spring-boot:run` puis ouvrir http://localhost:8080
-  - avec un profil local : `./mvnw spring-boot:run -Dspring-boot.run.profiles=christophe` (MariaDB)
-    ou `-Dspring-boot.run.profiles=fabrice` (PostgreSQL).
+  - avec un mot de passe, sous PowerShell : `$env:DB_PASSWORD="motdepasse"; ./mvnw spring-boot:run`
+    (dans IntelliJ : Run > Edit Configurations > Environment variables : `DB_PASSWORD=motdepasse`) ;
+  - variante PostgreSQL (tables créées par Hibernate, sans données de démonstration) :
+    `./mvnw spring-boot:run -Dspring-boot.run.profiles=fabrice`.
+- Tests : `./mvnw verify` (tests unitaires, sans base de données).
 - Application déployée : à compléter
 - Comptes de test :
   - Responsable d'exploitation : `responsable` / `responsable123`

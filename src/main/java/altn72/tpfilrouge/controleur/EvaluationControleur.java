@@ -29,7 +29,7 @@ public class EvaluationControleur {
     }
 
     @GetMapping
-    public String afficherFormulaire(@PathVariable Long id, Model model) {
+    public String afficherFormulaire(@PathVariable("id") Long id, Model model) {
         Incident incident = trouverIncident(id);
         model.addAttribute("incident", incident);
         try {
@@ -43,9 +43,9 @@ public class EvaluationControleur {
     }
 
     @PostMapping
-    public String enregistrer(@PathVariable Long id,
-                              @RequestParam(required = false) Integer note,
-                              @RequestParam(defaultValue = "") String commentaire,
+    public String enregistrer(@PathVariable("id") Long id,
+                              @RequestParam(name = "note", required = false) Integer note,
+                              @RequestParam(name = "commentaire", defaultValue = "") String commentaire,
                               Model model) {
         Incident incident = trouverIncident(id);
         try {

@@ -122,7 +122,7 @@ public class IncidentControleur {
 
     @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/changerPrestataire/{id}")
-    public String changerPrestataire(@PathVariable Long id, @RequestParam Long prestataire) {
+    public String changerPrestataire(@PathVariable("id") Long id, @RequestParam("prestataire") Long prestataire) {
         Incident incident = incidentService.getUnIncident(id).get();
         incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
         incidentService.modifierIncident(id, incident);
@@ -131,7 +131,7 @@ public class IncidentControleur {
 
     @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/resolu/{id}")
-    public String incidentResolu(@PathVariable Long id) {
+    public String incidentResolu(@PathVariable("id") Long id) {
         Incident incident = incidentService.getUnIncident(id).get();
         incident.setStatut(Statut.RESOLU);
         incident.setDateResolution(LocalDateTime.now());
