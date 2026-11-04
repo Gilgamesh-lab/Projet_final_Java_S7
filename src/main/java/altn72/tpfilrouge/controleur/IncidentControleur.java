@@ -5,14 +5,18 @@ import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -40,12 +44,27 @@ public class IncidentControleur {
     private PrestataireService prestataireService;
 
 
-    /*@GetMapping
-    public String afficherInfosIncidents(Model model){
+    @GetMapping("/api")
+    public ResponseEntity afficherInfosIncidents(){
         List<Incident> liste = incidentService.getIncidents();
-        model.addAttribute("incidents", liste);
-        return "pageAccueil";
-    }*/
+        Map<String, Object> response = new HashMap<>();
+        response.put("incidents", liste);
+        return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
+    }
+
+    @PutMapping("api/modifier/{id}")
+    public ResponseEntity modifierIncident(@RequestBody Incident incident, @PathVariable Long id){
+        if(incidentService.getUnIncident(id).isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(null);
+        }
+        else{
+            incidentService.modifierIncident(id,incident);
+            Map<String, Object> response = new HashMap<>();
+            response.put("incidentModifié", incident);
+            return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
+        }
+
+    }
 
     @GetMapping("/historique")
     public String afficherHistorique(Model model){
