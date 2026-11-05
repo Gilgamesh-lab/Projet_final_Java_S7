@@ -1,10 +1,7 @@
 package altn72.tpfilrouge.repository;
 
 import altn72.tpfilrouge.modele.Prestataire;
-import altn72.tpfilrouge.modele.Utilisateur;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 
 public interface PrestataireRepository extends JpaRepository<Prestataire, Long> {
 

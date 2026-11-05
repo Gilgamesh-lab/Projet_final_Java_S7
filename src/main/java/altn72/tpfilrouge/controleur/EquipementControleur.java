@@ -1,10 +1,8 @@
 package altn72.tpfilrouge.controleur;
 
 import altn72.tpfilrouge.modele.Equipement;
-import altn72.tpfilrouge.modele.Station;
 import altn72.tpfilrouge.service.EquipementService;
 import altn72.tpfilrouge.service.IncidentService;
-import altn72.tpfilrouge.service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -51,19 +49,13 @@ public class EquipementControleur {
         return "detailsEquipement";
     }
 
-    @GetMapping("/nouveau")
-    public String preparerAjoutEquipement(Model model) {
-        model.addAttribute("nouveauEquipement", new Equipement());
-        return "nouveauEquipement";
-    }
-
     @DeleteMapping("/{id}")
     public String deleteEquipement(@PathVariable("id") Long id) {
         if (!equipementService.supprimerEquipement(id)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "L'equipement dont l'id est " + id + " n'existe pas");
         }
-        return "redirect:/equipements";    // "redirect:" + une ROUTE (pas un nom de template) : ici celle de la liste
+        return "redirect:/equipements";
     }
 
 

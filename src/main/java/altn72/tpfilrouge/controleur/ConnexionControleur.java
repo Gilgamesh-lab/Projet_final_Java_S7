@@ -16,10 +16,8 @@ import java.util.Optional;
 @Controller
 public class ConnexionControleur {
 
-    // Injection de dépendance via le constructeur -- DÉBUT //
     private final ConnexionService connexionService;
     public ConnexionControleur(ConnexionService connexionService) { this.connexionService = connexionService; }
-    // Injection de dépendance via le constructeur -- FIN //
 
     @GetMapping("/")
     public String afficherAccueil() {

@@ -9,8 +9,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-
 public interface IncidentRepository extends JpaRepository<Incident, Long> {
 
     List<Incident> findByStatutOrderByDateResolutionDesc(Statut statut);

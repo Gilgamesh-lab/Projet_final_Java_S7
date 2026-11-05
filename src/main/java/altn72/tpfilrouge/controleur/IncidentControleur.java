@@ -3,7 +3,8 @@ package altn72.tpfilrouge.controleur;
 import altn72.tpfilrouge.modele.*;
 import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/incidents")
+@Tag(name = "Incidents", description = "Gestion des incidents")
 public class IncidentControleur {
 
 
@@ -44,6 +46,7 @@ public class IncidentControleur {
     private PrestataireService prestataireService;
 
 
+    @Operation(summary = "Récupérer la liste de incidents", description = "Renvoie la liste des incidents")
     @GetMapping("/api")
     public ResponseEntity afficherInfosIncidents(){
         List<Incident> liste = incidentService.getIncidents();
@@ -52,6 +55,7 @@ public class IncidentControleur {
         return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
     }
 
+    @Operation(summary = "Modififier un incident", description = "Modifie un incident grâce à son id en l'écrasant par le nouveau incident fournie")
     @PutMapping("api/modifier/{id}")
     public ResponseEntity modifierIncident(@RequestBody Incident incident, @PathVariable("id") Long id){
         if(incidentService.getUnIncident(id).isEmpty()){
@@ -137,7 +141,7 @@ public class IncidentControleur {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas");
         }
-        return "redirect:/equipements";    
+        return "redirect:/equipements";
     }
 
 

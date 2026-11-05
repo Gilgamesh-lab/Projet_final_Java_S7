@@ -36,9 +36,7 @@ public class IncidentService {
     }
 
     public Optional<Incident> getUnIncident(Long idIncident) {
-        Optional<Incident> uneIncident = incidentRepository.findById(idIncident);
-        if (uneIncident.isEmpty()) System.out.println("Cet incident n'existe pas");
-            return uneIncident;
+        return incidentRepository.findById(idIncident);
     }
 
     @Transactional
