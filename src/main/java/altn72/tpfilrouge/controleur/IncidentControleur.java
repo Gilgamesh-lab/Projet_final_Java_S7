@@ -1,5 +1,8 @@
 package altn72.tpfilrouge.controleur;
 
+import altn72.tpfilrouge.exception.RegleMetierException;
+import altn72.tpfilrouge.exception.RessourceIntrouvableException;
+import altn72.tpfilrouge.exception.SaisieInvalideException;
 import altn72.tpfilrouge.modele.*;
 import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.*;
@@ -10,11 +13,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +50,7 @@ public class IncidentControleur {
     private PrestataireService prestataireService;
 
 
-    @Operation(summary = "Récupérer la liste de incidents", description = "Renvoie la liste des incidents")
+    @Operation(summary = "Récupérer la liste des incidents", description = "Renvoie la liste des incidents")
     @GetMapping("/api")
     public ResponseEntity afficherInfosIncidents(){
         List<Incident> liste = incidentService.getIncidents();
@@ -55,39 +59,24 @@ public class IncidentControleur {
         return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
     }
 
-    // Seuls la description et le passage à RESOLU sont modifiables : l'affectation d'un prestataire passe par F7
     @ReserveAuProfil(Profil.RESPONSABLE)
-    @Operation(summary = "Modififier un incident", description = "Modifie un incident grâce à son id en l'écrasant par le nouveau incident fournie")
+    @Operation(summary = "Modifier un incident", description = "Modifie la description d'un incident non résolu ou le passe au statut RESOLU. Répond 400 si la saisie est invalide, 404 si l'incident n'existe pas et 409 s'il est déjà résolu")
     @PutMapping("api/modifier/{id}")
-
     public ResponseEntity modifierIncident(@RequestBody Incident incident, @PathVariable("id") Long id){
-        if(incidentService.getUnIncident(id).isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(null);
-        }
-        Incident incidentExistant = incidentService.getUnIncident(id).get();
         Map<String, Object> response = new HashMap<>();
-        if(incidentExistant.getStatut() == Statut.RESOLU){
-            response.put("erreur", "Un incident résolu ne peut plus être modifié");
+        try {
+            response.put("incidentModifié", incidentService.modifierDepuisApi(id, incident.getDescription(), incident.getStatut()));
+            return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
+        } catch (RessourceIntrouvableException e) {
+            response.put("erreur", e.getReason());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(response);
+        } catch (RegleMetierException e) {
+            response.put("erreur", e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).header("Content-Type", "application/json").body(response);
-        }
-        if(incident.getStatut() != null && incident.getStatut() != Statut.RESOLU && incident.getStatut() != incidentExistant.getStatut()){
-            response.put("erreur", "Le seul changement de statut possible est le passage à RESOLU");
+        } catch (SaisieInvalideException e) {
+            response.put("erreur", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).header("Content-Type", "application/json").body(response);
         }
-        if(incident.getDescription() != null && incident.getDescription().isBlank()){
-            response.put("erreur", "La description ne peut pas être vide");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).header("Content-Type", "application/json").body(response);
-        }
-        if(incident.getDescription() != null){
-            incidentExistant.setDescription(incident.getDescription());
-        }
-        if(incident.getStatut() == Statut.RESOLU){
-            incidentExistant.setStatut(Statut.RESOLU);
-            incidentExistant.setDateResolution(LocalDateTime.now());
-        }
-        incidentService.modifierIncident(id, incidentExistant);
-        response.put("incidentModifié", incidentExistant);
-        return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
     }
 
     @GetMapping("/historique")
@@ -101,24 +90,13 @@ public class IncidentControleur {
     @ReserveAuProfil(Profil.RESPONSABLE)
     @GetMapping("/tableau-de-bord")
     public String afficherTableauDeBordFilter(@RequestParam(required = false, value = "station") String station, @RequestParam(required = false, value = "niveau") String niveau, Model model){
-        List<Incident> liste;
-        if((station == null || station.isEmpty()) && (niveau == null ||niveau.isEmpty()) ){
-            liste = incidentService.getIncidentsEnCours();
+        Indicateur indicateur = Arrays.stream(Indicateur.values())
+                .filter(choix -> choix.name().equalsIgnoreCase(niveau)).findFirst().orElse(null);
+        Long stationId = null;
+        if(station != null && !station.isEmpty()){
+            stationId = stationService.getUneStation(station).getId();
         }
-
-        else{
-            Indicateur indicateur = null;
-            if(niveau != null && !niveau.isEmpty()){
-                indicateur = Indicateur.valueOf(niveau.toUpperCase().replace(" ", "_"));
-            }
-
-            Long stationId = null;
-            if(station != null && !station.isEmpty()){
-                stationId = stationService.getUneStation(station).getId();
-            }
-
-            liste = tableauDeBordService.getLignes(stationId, indicateur).stream().map(LigneTableauDeBord::getIncident).collect(Collectors.toList());
-        }
+        List<Incident> liste = tableauDeBordService.getLignes(stationId, indicateur).stream().map(LigneTableauDeBord::getIncident).collect(Collectors.toList());
 
         model.addAttribute("incidents", liste);
         model.addAttribute("listeNiveau", Indicateur.values());
@@ -137,8 +115,8 @@ public class IncidentControleur {
     @GetMapping("/{id}")
     public String afficherUnIncident(@PathVariable("id") Long id, Model model) {
         Incident incident = incidentService.getUnIncident(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas"));
+                .orElseThrow(() -> new RessourceIntrouvableException(
+                        "L'incident dont l'id est " + id + " n'existe pas"));
         model.addAttribute("incidentToUpdate", incident);
         LocalDateTime fin = incident.getDateResolution() != null ? incident.getDateResolution() : LocalDateTime.now();
         Duration duree = Duration.between(incident.getDateOuverture(), fin);
@@ -160,8 +138,8 @@ public class IncidentControleur {
     @DeleteMapping("/{id}")
     public String deleteIncident(@PathVariable("id") Long id) {
         if (!incidentService.supprimerIncident(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas");
+            throw new RessourceIntrouvableException(
+                    "L'incident dont l'id est " + id + " n'existe pas");
         }
         return "redirect:/equipements";
     }
@@ -178,21 +156,18 @@ public class IncidentControleur {
 
     @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/changerPrestataire/{id}")
-    public String changerPrestataire(@PathVariable("id") Long id, @RequestParam("prestataire") Long prestataire) {
-        Incident incident = incidentService.getUnIncident(id).get();
-        if(incident.getStatut() != Statut.RESOLU){
-            incident.setPrestataire(prestataireService.getPrestataireById(prestataire));
-            incident.setStatut(Statut.EN_COURS);
-            incidentService.modifierIncident(id, incident);
-
+    public String changerPrestataire(@PathVariable("id") Long id, @RequestParam("prestataire") Long prestataire, RedirectAttributes redirect) {
+        try {
+            incidentService.affecterPrestataire(id, prestataire);
+        } catch (RegleMetierException e) {
+            redirect.addFlashAttribute("erreur", e.getMessage());
         }
         return "redirect:/incidents/tableau-de-bord";
     }
 
     @GetMapping("/exporter")
     public ResponseEntity<byte[]> exporter()  {
-        List<Incident> incidents = incidentService.getIncidents();
-        incidents.stream().forEach(incident -> {incident.setEvaluation(null);}); // pansement pour éviter de devoir créer une classe DTO
+        List<Incident> incidents = incidentService.getIncidentsResolue();
         ObjectMapper objectMapper =  new ObjectMapper();
         byte[] json = objectMapper
                 .writerWithDefaultPrettyPrinter()
@@ -207,42 +182,37 @@ public class IncidentControleur {
 
     @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/resolu/{id}")
-    public String incidentResolu(@PathVariable("id") Long id) {
-        Incident incident = incidentService.getUnIncident(id).get();
-
-        if(incident.getStatut() != Statut.RESOLU){
-            incident.setStatut(Statut.RESOLU);
-            incident.setDateResolution(LocalDateTime.now());
-            incidentService.modifierIncident(id, incident);
+    public String incidentResolu(@PathVariable("id") Long id, RedirectAttributes redirect) {
+        try {
+            incidentService.declarerResolu(id);
+        } catch (RegleMetierException e) {
+            redirect.addFlashAttribute("erreur", e.getMessage());
         }
-        
         return "redirect:/incidents/tableau-de-bord";
     }
 
     @PostMapping("/nouveau")
     public String creerIncident(@ModelAttribute("nouveauIncident") Incident incident, Model model) {
-        if(incidentService.getIncidentByIdentifiant(incident.getIdentifiant()) != null){
-            model.addAttribute("erreur", "Cet identifiant existe déjà, veuillez en choisir un autre");
-            model.addAttribute("nouveauIncident", new Incident());
+        try {
+            incidentService.declarerIncident(incident);
+            return "redirect:/";
+        } catch (SaisieInvalideException e) {
+            model.addAttribute("erreur", e.getMessage());
             model.addAttribute("equipements", equipementService.getEquipements());
             model.addAttribute("statuts", Statut.values());
             return "nouveauIncident";
         }
-        else{
-            incident.setDateOuverture(LocalDateTime.now());
-            incident.setStatut(Statut.NOUVEAU);
-            incidentService.ajouterIncident(incident);
-            return "redirect:/";
-        }
-
     }
 
     @PutMapping("/modifier/{id}")
-    public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute("incidentToUpdate") Incident incidentModified ){
-        Incident incident = incidentService.getUnIncident(id).get();
-        incident.setDescription(incidentModified.getDescription());
-        incidentService.modifierIncident(id,incident);
-        return "redirect:/equipements";
+    public String modifierIncident(@PathVariable("id") Long id,@ModelAttribute("incidentToUpdate") Incident incidentModified, RedirectAttributes redirect){
+        try {
+            incidentService.modifierDescription(id, incidentModified.getDescription());
+            return "redirect:/equipements";
+        } catch (RegleMetierException | SaisieInvalideException e) {
+            redirect.addFlashAttribute("erreur", e.getMessage());
+            return "redirect:/incidents/" + id;
+        }
     }
 
 }

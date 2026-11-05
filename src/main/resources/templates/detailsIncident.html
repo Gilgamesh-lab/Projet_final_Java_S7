@@ -21,6 +21,8 @@
               th:text="${incidentToUpdate.statut.libelle}">En cours</span>
     </header>
 
+    <div th:if="${erreur}" class="alert alert-danger" role="alert" th:text="${erreur}"></div>
+
     <div class="row g-4">
         <!--/* F5 : détail de l'incident */-->
         <div class="col-lg-7">
@@ -48,7 +50,7 @@
         </div>
 
         <div class="col-lg-5">
-            <div class="card mb-4">
+            <div class="card mb-4" th:unless="${incidentToUpdate.statut.name() == 'RESOLU'}">
                 <div class="card-header">Modifier la description</div>
                 <div class="card-body">
                     <form th:method="put" th:object="${incidentToUpdate}" th:action="@{/incidents/modifier/{id}(id=${incidentToUpdate.id})}">

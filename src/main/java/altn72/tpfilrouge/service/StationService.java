@@ -1,5 +1,8 @@
 package altn72.tpfilrouge.service;
 
+import altn72.tpfilrouge.exception.RegleMetierException;
+import altn72.tpfilrouge.exception.RessourceIntrouvableException;
+import altn72.tpfilrouge.exception.SaisieInvalideException;
 import altn72.tpfilrouge.modele.Station;
 import altn72.tpfilrouge.repository.EquipementRepository;
 import altn72.tpfilrouge.repository.IncidentRepository;
@@ -35,30 +38,34 @@ public class StationService {
     }
 
     public Optional<Station> getUneStation(Long idStation) {
-        Optional<Station> uneStation = stationRepository.findById(idStation);
-        if (uneStation.isEmpty()) System.out.println("Cette station n'existe pas");
-            return uneStation;
+        return stationRepository.findById(idStation);
     }
 
     public Station getUneStation(String nomStation) {
-        return stationRepository.findByNom(nomStation).get(0);
+        return stationRepository.findByNom(nomStation).stream().findFirst()
+                .orElseThrow(() -> new RessourceIntrouvableException("La station " + nomStation + " n'existe pas"));
     }
 
     @Transactional
     public boolean supprimerStation(Long idStation) {
         if (!stationRepository.existsById(idStation)) return false;
+        if (incidentRepository.existsByEquipementStationId(idStation)) {
+            throw new RegleMetierException("Cette station a des équipements avec des incidents : elle ne peut pas être supprimée.");
+        }
         equipementRepository.deleteEquipementByStation(this.getUneStation(idStation).get());
         stationRepository.deleteById(idStation);
         return true;
     }
 
     public Station ajouterStation(Station station) {
+        verifierSaisie(station);
         station.setId(null);
         return stationRepository.save(station);
     }
 
     @Transactional
     public Optional<Station> modifierStation(Long idStation, Station stationModified) {
+        verifierSaisie(stationModified);
         stationRepository.setStationInfoById(stationModified.getNom(), stationModified.getIdentifiant(), stationModified.getId());
        return stationRepository.findById(idStation).map(stationToModify -> {
             BeanUtils.copyProperties(stationModified, stationToModify, "id");
@@ -74,8 +81,19 @@ public class StationService {
         ObjectMapper objectMapper = new ObjectMapper();
         try (InputStream in = fichier.getInputStream()) {
             List<Station> stations = objectMapper.readValue(in, new TypeReference<List<Station>>() {});
+            stations.forEach(station -> {
+                verifierSaisie(station);
+                station.setId(null);
+            });
             stationRepository.saveAll(stations);
             return stations.size();
+        }
+    }
+
+    private void verifierSaisie(Station station) {
+        if (station.getNom() == null || station.getNom().isBlank()
+                || station.getIdentifiant() == null || station.getIdentifiant().isBlank()) {
+            throw new SaisieInvalideException("Le nom et l'identifiant d'une station sont obligatoires.");
         }
     }
 

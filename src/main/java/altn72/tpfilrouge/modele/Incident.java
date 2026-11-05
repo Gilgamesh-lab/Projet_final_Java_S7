@@ -39,7 +39,7 @@ public class Incident {
     @Column(name = "date_resolution")
     private LocalDateTime dateResolution;
 
-    @OneToOne(mappedBy = "incident")
+    @OneToOne(mappedBy = "incident", cascade = CascadeType.REMOVE)
     private Evaluation evaluation;
 
     public Long getId() {

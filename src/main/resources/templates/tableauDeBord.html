@@ -47,6 +47,8 @@
     </div>
 
     <!--/* F11 : filtres (au moins deux critères) */-->
+    <div th:if="${erreur}" class="alert alert-danger" role="alert" th:text="${erreur}"></div>
+
     <form class="panneau filtres" method="get" th:action="@{/incidents/tableau-de-bord}">
         <div>
             <label for="station">Station</label>

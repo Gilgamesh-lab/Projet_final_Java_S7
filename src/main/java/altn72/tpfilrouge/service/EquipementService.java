@@ -1,7 +1,9 @@
 package altn72.tpfilrouge.service;
 
+import altn72.tpfilrouge.exception.RegleMetierException;
 import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.repository.EquipementRepository;
+import altn72.tpfilrouge.repository.IncidentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.BeanUtils;
@@ -18,21 +20,24 @@ public class EquipementService {
     @Autowired
     private EquipementRepository equipementRepository;
 
+    @Autowired
+    private IncidentRepository incidentRepository;
+
     public List<Equipement> getEquipements() {
         return equipementRepository.findAll();
     }
 
     public Optional<Equipement> getUnEquipement(Long idEquipement) {
-        Optional<Equipement> unEquipement = equipementRepository.findById(idEquipement);
-
-        if (unEquipement.isEmpty()) System.out.println("Ce equipement n'existe pas");
-            return unEquipement;
+        return equipementRepository.findById(idEquipement);
     }
 
     @Transactional
     public boolean supprimerEquipement(Long idEquipement) {
         if (!equipementRepository.existsById(idEquipement)) return false;
-            equipementRepository.deleteById(idEquipement);
+        if (incidentRepository.existsByEquipementId(idEquipement)) {
+            throw new RegleMetierException("Cet équipement a des incidents : il ne peut pas être supprimé.");
+        }
+        equipementRepository.deleteById(idEquipement);
         return true;
     }
 

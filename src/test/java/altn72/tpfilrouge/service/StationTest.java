@@ -1,7 +1,7 @@
 package altn72.tpfilrouge.service;
 
-import altn72.tpfilrouge.modele.Indicateur;
-import altn72.tpfilrouge.modele.Prestataire;
+import altn72.tpfilrouge.exception.RegleMetierException;
+import altn72.tpfilrouge.exception.SaisieInvalideException;
 import altn72.tpfilrouge.modele.Station;
 import altn72.tpfilrouge.repository.EquipementRepository;
 import altn72.tpfilrouge.repository.IncidentRepository;
@@ -12,16 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.Assert;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +29,9 @@ public class StationTest {
 
     @Mock
     private EquipementRepository equipementRepository;
+
+    @Mock
+    private IncidentRepository incidentRepository;
 
     @InjectMocks
     private  StationService stationService;
@@ -65,6 +64,21 @@ public class StationTest {
         when(stationRepository.existsById(1L)).thenReturn(true);
         stationService.supprimerStation(1L);
         verify(stationRepository).deleteById(1L);
+    }
+
+    @Test
+    void testSupprimerStationAvecIncidentsRefuse() {
+        when(stationRepository.existsById(1L)).thenReturn(true);
+        when(incidentRepository.existsByEquipementStationId(1L)).thenReturn(true);
+        assertThatThrownBy(() -> stationService.supprimerStation(1L)).isInstanceOf(RegleMetierException.class);
+        verify(stationRepository, never()).deleteById(1L);
+    }
+
+    @Test
+    void testAjouterStationSansNomRefuse() {
+        station.setNom(" ");
+        assertThatThrownBy(() -> stationService.ajouterStation(station)).isInstanceOf(SaisieInvalideException.class);
+        verify(stationRepository, never()).save(station);
     }
 
     @Test

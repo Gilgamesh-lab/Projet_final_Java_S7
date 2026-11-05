@@ -23,6 +23,7 @@
   - variante PostgreSQL (tables créées par Hibernate, sans données de démonstration) :
     `./mvnw spring-boot:run -Dspring-boot.run.profiles=fabrice`.
 - Tests : `./mvnw verify` (tests unitaires, sans base de données).
+- Documentation de l'API REST : `/swagger-ui-custom.html`, après connexion.
 - Application déployée : https://projetfinaljavas7-production-a95e.up.railway.app
   (Railway, à partir du `Dockerfile` du dépôt, avec une base MySQL 8 configurée par `DB_URL`, `DB_USER` et `DB_PASSWORD`).
 - Comptes de test :
@@ -45,6 +46,7 @@
   - `modele` : entités JPA et énumérations ;
   - `repository` : repositories Spring Data JPA (requêtes dérivées, JPQL et native) ;
   - `service` : règles métier ;
+  - `exception` : exceptions de l'application ;
   - `controleur` : contrôleurs Spring MVC, vues Thymeleaf dans `src/main/resources/templates` ;
   - `securite` : connexion, protection des pages et des droits par profil.
 - Schéma :
@@ -74,7 +76,7 @@ MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
   permet de tester précisément les seuils sans dépendre de l'heure réelle. Les repositories sont remplacés par des
   objets simulés (Mockito) : on teste la logique du service, pas la base.
 - Commande : `./mvnw verify`
-- Couvert (41 tests) :
+- Couvert (58 tests) :
   - calcul de l'indicateur d'urgence (`IndicateurServiceTest`, 8 tests) :
     - non affecté ouvert depuis 47 h et 47 h 59 : vert ;
     - 48 h pile et 71 h 59 : orange ;
@@ -89,11 +91,13 @@ MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
     en cas de refus, on vérifie que rien n'est enregistré.
   - statistiques (`StatistiquesServiceTest`, 4 tests) : ordre des stations, quatre indicateurs dans l'ordre, arrondi de
     la note moyenne, graphique vide sans évaluation.
-  - services des incidents, équipements et stations (`IncidentTest`, `EquipementTest`, `StationTest`, 5 tests chacun) :
-    lecture, ajout, modification et suppression.
+  - services des équipements et stations (`EquipementTest` 6 tests, `StationTest` 7 tests) : lecture, ajout,
+    modification, suppression, refus de supprimer ce qui a des incidents, refus d'une station sans nom.
+  - service des incidents (`IncidentTest`, 19 tests) : lecture, ajout, suppression, déclaration (F4) avec refus d'une
+    description vide, d'un équipement manquant et d'un identifiant existant, affectation (F7) avec refus d'un incident
+    résolu ou inconnu, résolution (F8), modification de la description (F6), règles de l'API (F12).
 - Non couvert :
   - les contrôleurs, les pages et l'API REST (pas de tests MockMvc) : vérifiés à la main ;
-  - les règles de F7 et F8, écrites dans le contrôleur, donc hors des tests de service ;
   - le démarrage complet de l'application : un test `@SpringBootTest` aurait besoin d'une base disponible, alors que
     `./mvnw verify` doit fonctionner sans base ;
   - les requêtes JPQL et native : pas de tests `@DataJpaTest`, il faudrait une base de test (H2 ou Testcontainers)
@@ -112,6 +116,16 @@ MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
 | F9     | Consulter l'historique           | Accès complet              | Lecture seule                         |
 | F10    | Évaluer un prestataire           | Accès complet              | Interdit                              |
 | F11    | Tableau de bord                  | Accès complet              | Interdit                              |
+| F12    | API REST                         | Accès complet              | Lecture seule                         |
+| -      | Stations (ajout, modification, suppression, import) | Accès complet | Lecture seule               |
+| -      | Supprimer un équipement ou un incident | Accès complet        | Interdit                              |
+
+- Modifications autorisées (F6) : seule la description d'un incident non résolu est modifiable, par les deux profils.
+  L'agent signale les pannes et peut donc préciser sa description. Le statut et le prestataire ne changent que par F7
+  et F8, réservés au responsable. Un incident résolu n'est plus modifiable : il sert de trace dans l'historique.
+- API REST (F12) : le `PUT` ne permet que de modifier la description ou de passer à `RESOLU`, pour respecter les mêmes
+  règles que les pages. Il répond 400 si la saisie est invalide, 403 si le profil n'est pas autorisé, 404 si l'incident
+  n'existe pas et 409 s'il est déjà résolu.
 
 - Connexion (F1) et sécurité :
   - session HTTP simple plutôt que Spring Security complet : un intercepteur (`ConnexionInterceptor`) suffit pour
@@ -150,15 +164,15 @@ MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
   - double protection : le service renvoie un message clair, et la base refuse de toute façon les doublons
     (`UNIQUE`) et les notes invalides (`CHECK`) ;
   - réservée au responsable par `@ReserveAuProfil` sur `EvaluationControleur` ; la note est affichée dans l'historique.
-- Exceptions : `ResponseStatusException` dans les contrôleurs plutôt qu'un `@ControllerAdvice`.
-  - Nous n'avons que deux cas d'erreur HTTP : ressource inexistante (404) et profil non autorisé (403). Lever
-    l'exception à l'endroit où l'erreur est détectée reste simple et lisible ; un `@ControllerAdvice` serait plus
-    utile avec beaucoup d'exceptions métier différentes à traduire.
+- Exceptions : trois exceptions personnalisées, avec des messages en français, plutôt qu'un `@ControllerAdvice`.
+  - `RessourceIntrouvableException` (404) hérite de `ResponseStatusException` : Spring affiche directement notre page
+    d'erreur, sans code supplémentaire.
+  - `RegleMetierException` : opération interdite par une règle (incident résolu réaffecté, station avec des incidents
+    supprimée...). `SaisieInvalideException` : donnée manquante ou incorrecte.
+  - Le contrôleur attrape ces deux dernières pour afficher le message sur la page, ou pour choisir le code HTTP dans
+    l'API : la réponse n'est pas la même partout, un traitement global aurait donc peu simplifié le code.
   - Spring Boot affiche automatiquement nos pages `templates/error/404.html` et `error/403.html`, avec le bandeau et
     le message du contrôleur (`spring.web.error.include-message=always`).
-  - Les erreurs de saisie (note invalide, incident non évaluable) ne sont pas des erreurs HTTP : le service lève une
-    exception métier (`IllegalArgumentException`, `IllegalStateException`), le contrôleur l'attrape et réaffiche le
-    formulaire avec le message.
 - SOLID :
   - Responsabilité unique (S) : `IndicateurService` ne fait que calculer l'indicateur, `ConnexionService` que vérifier
     les identifiants ; la protection des pages est isolée dans `ConnexionInterceptor` au lieu d'être répétée dans
@@ -207,8 +221,22 @@ MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
   pas fonctionné sous Linux ; nous l'avons remise en minuscules avant le déploiement.
 - Reste à faire : l'évolution dans le temps (incidents par semaine, délais de résolution) ; les prestataires sans
   évaluation n'apparaissent pas dans le troisième graphique.
-### Fonctionnalité transverse 2 : export CSV de l'historique (piste 9)
-- Besoin · périmètre envisagé · choix et essais · ce qui fonctionne · difficultés · reste à faire : à compléter
+### Fonctionnalité transverse 2 : import / export JSON (piste 9)
+- Besoin : ajouter plusieurs stations d'un coup sans passer par le formulaire, et récupérer l'historique des incidents
+  résolus dans un fichier réutilisable par un autre outil.
+- Périmètre : import de stations depuis un fichier JSON, réservé au responsable, depuis la page des stations ; export
+  de l'historique en `incidents.json`, depuis la page de l'historique.
+- Choix et essais :
+  - JSON plutôt que CSV : Jackson est déjà présent dans le projet, aucune dépendance à ajouter, et les données liées
+    (équipement, station, prestataire, évaluation) gardent leur structure ;
+  - import dans une transaction : si une station est refusée, aucune n'est enregistrée (RG10) ;
+  - l'identifiant technique éventuellement présent dans le fichier est ignoré, pour ne jamais écraser une station.
+- Ce qui fonctionne : import avec message du nombre de stations ajoutées ; messages clairs pour un fichier vide, un JSON
+  invalide, un champ manquant ou un identifiant déjà utilisé ; export avec les évaluations.
+- Difficultés : la relation `Incident` / `Evaluation` provoquait une boucle infinie lors de l'écriture du JSON, réglée
+  avec `@JsonIgnore` ; avec Jackson 3, un JSON invalide ne lève plus d'`IOException` mais une `JacksonException`, qu'il
+  a fallu attraper pour ne pas afficher une erreur 500.
+- Reste à faire : import d'équipements et export au format CSV.
 
 ## BILAN
 - Contribution de chacun :
@@ -225,7 +253,11 @@ MariaDB en local, MySQL 8 en ligne (schema.sql + data.sql)
   fonctionner d'un côté et casser `schema.sql` ou `data.sql` de l'autre, comme le renommage d'une valeur de `Profil`,
   qui bloquait la connexion du responsable. Nous avons retenu MariaDB comme référence, et relancé l'application avec
   les données de démonstration pour vérifier les changements.
-- Fonctionnalités non réalisées et pourquoi : à compléter
+- Fonctionnalités non réalisées et pourquoi :
+  - les fonctionnalités F1 à F12 et les deux pistes du lot alpha sont réalisées ;
+  - pas d'écran pour ajouter ou modifier un équipement : ce n'est pas demandé par le socle, et nous avons préféré retirer
+    les routes inachevées plutôt que de les laisser en erreur. La suppression reste possible pour le responsable ;
+  - pas de tests de contrôleurs ni de repositories (voir TESTS), par manque de temps : ils ont été vérifiés à la main.
 - Trois points à retenir du cours et du projet :
   - la séparation en couches : les règles métier dans les services sont testables sans base ni navigateur ;
   - les règles et les droits s'appliquent côté serveur : masquer un bouton ne protège rien ;

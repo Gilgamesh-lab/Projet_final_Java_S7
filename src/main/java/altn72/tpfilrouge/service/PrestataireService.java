@@ -1,5 +1,6 @@
 package altn72.tpfilrouge.service;
 
+import altn72.tpfilrouge.exception.RessourceIntrouvableException;
 import altn72.tpfilrouge.modele.Prestataire;
 import altn72.tpfilrouge.repository.PrestataireRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ public class PrestataireService {
     }
 
     public Prestataire getPrestataireById(Long id) {
-        return prestataireRepository.findById(id).get();
+        return prestataireRepository.findById(id)
+                .orElseThrow(() -> new RessourceIntrouvableException("Le prestataire dont l'id est " + id + " n'existe pas"));
     }
 
 

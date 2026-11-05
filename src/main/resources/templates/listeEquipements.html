@@ -18,6 +18,8 @@
         </div>
     </header>
 
+    <div th:if="${erreur}" class="alert alert-danger" role="alert" th:text="${erreur}"></div>
+
     <!--/* F2 : choix de la station */-->
     <form class="panneau filtres" method="get" th:action="@{/equipements}">
         <div>

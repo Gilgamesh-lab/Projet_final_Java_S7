@@ -13,6 +13,12 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
 
     List<Incident> findByStatutOrderByDateResolutionDesc(Statut statut);
 
+    List<Incident> findByEquipementIdOrderByDateOuvertureDesc(Long equipementId);
+
+    boolean existsByEquipementId(Long equipementId);
+
+    boolean existsByEquipementStationId(Long stationId);
+
     Incident findByIdentifiant(String identifiant);
 
 

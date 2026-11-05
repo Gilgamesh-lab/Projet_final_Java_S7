@@ -1,10 +1,10 @@
 package altn72.tpfilrouge.service;
 
-import altn72.tpfilrouge.modele.Equipement;
+import altn72.tpfilrouge.exception.RegleMetierException;
 import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Station;
 import altn72.tpfilrouge.repository.EquipementRepository;
-import altn72.tpfilrouge.repository.EquipementRepository;
+import altn72.tpfilrouge.repository.IncidentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +28,9 @@ public class EquipementTest {
 
     @Mock
     private EquipementRepository equipementRepository;
+
+    @Mock
+    private IncidentRepository incidentRepository;
 
     @InjectMocks
     private  EquipementService equipementService;
@@ -54,10 +59,17 @@ public class EquipementTest {
 
     @Test
     void testSupprimerEquipement() {
-        //when(equipementRepository.findById(1L)).thenReturn(Optional.ofNullable(equipement));
         when(equipementRepository.existsById(1L)).thenReturn(true);
         equipementService.supprimerEquipement(1L);
         verify(equipementRepository).deleteById(1L);
+    }
+
+    @Test
+    void testSupprimerEquipementAvecIncidentsRefuse() {
+        when(equipementRepository.existsById(1L)).thenReturn(true);
+        when(incidentRepository.existsByEquipementId(1L)).thenReturn(true);
+        assertThatThrownBy(() -> equipementService.supprimerEquipement(1L)).isInstanceOf(RegleMetierException.class);
+        verify(equipementRepository, never()).deleteById(1L);
     }
 
     @Test

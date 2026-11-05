@@ -1,0 +1,8 @@
+package altn72.tpfilrouge.exception;
+
+public class RegleMetierException extends IllegalStateException {
+
+    public RegleMetierException(String message) {
+        super(message);
+    }
+}
