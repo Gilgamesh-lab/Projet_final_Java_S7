@@ -52,19 +52,37 @@ public class IncidentControleur {
         return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
     }
 
+    // Seuls la description et le passage à RESOLU sont modifiables : l'affectation d'un prestataire passe par F7
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("api/modifier/{id}")
     public ResponseEntity modifierIncident(@RequestBody Incident incident, @PathVariable("id") Long id){
         if(incidentService.getUnIncident(id).isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(null);
         }
-        else{
-            incidentService.modifierIncident(id,incident);
-            Map<String, Object> response = new HashMap<>();
-            incident.getEvaluation().setIncident(null);
-            response.put("incidentModifié", incident);
-            return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
+        Incident incidentExistant = incidentService.getUnIncident(id).get();
+        Map<String, Object> response = new HashMap<>();
+        if(incidentExistant.getStatut() == Statut.RESOLU){
+            response.put("erreur", "Un incident résolu ne peut plus être modifié");
+            return ResponseEntity.status(HttpStatus.CONFLICT).header("Content-Type", "application/json").body(response);
         }
-
+        if(incident.getStatut() != null && incident.getStatut() != Statut.RESOLU && incident.getStatut() != incidentExistant.getStatut()){
+            response.put("erreur", "Le seul changement de statut possible est le passage à RESOLU");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).header("Content-Type", "application/json").body(response);
+        }
+        if(incident.getDescription() != null && incident.getDescription().isBlank()){
+            response.put("erreur", "La description ne peut pas être vide");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).header("Content-Type", "application/json").body(response);
+        }
+        if(incident.getDescription() != null){
+            incidentExistant.setDescription(incident.getDescription());
+        }
+        if(incident.getStatut() == Statut.RESOLU){
+            incidentExistant.setStatut(Statut.RESOLU);
+            incidentExistant.setDateResolution(LocalDateTime.now());
+        }
+        incidentService.modifierIncident(id, incidentExistant);
+        response.put("incidentModifié", incidentExistant);
+        return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(response);
     }
 
     @GetMapping("/historique")
@@ -117,13 +135,15 @@ public class IncidentControleur {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "L'incident dont l'id est " + id + " n'existe pas"));
         model.addAttribute("incidentToUpdate", incident);
-        if(Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toMinutes() >= 60) {
-            model.addAttribute("durée", Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toHours() + "h");
-        } else if (Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toHours() >= 24) {
-            model.addAttribute("durée", Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toHours() + "j");
+        LocalDateTime fin = incident.getDateResolution() != null ? incident.getDateResolution() : LocalDateTime.now();
+        Duration duree = Duration.between(incident.getDateOuverture(), fin);
+        if(duree.toHours() >= 24) {
+            model.addAttribute("durée", duree.toDays() + "j");
+        } else if (duree.toMinutes() >= 60) {
+            model.addAttribute("durée", duree.toHours() + "h");
         }
         else{
-            model.addAttribute("durée", Duration.between(incident.getDateOuverture(), incident.getDateResolution()).toMinutes() + "min");
+            model.addAttribute("durée", duree.toMinutes() + "min");
         }
 
         return "detailsIncident";
@@ -131,6 +151,7 @@ public class IncidentControleur {
 
 
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @DeleteMapping("/{id}")
     public String deleteIncident(@PathVariable("id") Long id) {
         if (!incidentService.supprimerIncident(id)) {

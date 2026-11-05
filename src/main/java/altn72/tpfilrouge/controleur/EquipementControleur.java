@@ -1,7 +1,9 @@
 package altn72.tpfilrouge.controleur;
 
 import altn72.tpfilrouge.modele.Equipement;
+import altn72.tpfilrouge.modele.Profil;
 import altn72.tpfilrouge.modele.Station;
+import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.EquipementService;
 import altn72.tpfilrouge.service.IncidentService;
 import altn72.tpfilrouge.service.StationService;
@@ -51,12 +53,14 @@ public class EquipementControleur {
         return "detailsEquipement";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @GetMapping("/nouveau")
     public String preparerAjoutEquipement(Model model) {
         model.addAttribute("nouveauEquipement", new Equipement());
         return "nouveauEquipement";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @DeleteMapping("/{id}")
     public String deleteEquipement(@PathVariable("id") Long id) {
         if (!equipementService.supprimerEquipement(id)) {
@@ -67,6 +71,7 @@ public class EquipementControleur {
     }
 
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PostMapping
     public String creerEquipement(@ModelAttribute Equipement equipement){
         equipementService.ajouterEquipement(equipement);
@@ -74,6 +79,7 @@ public class EquipementControleur {
     }
 
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/{id}")
     public String modifierEquipement(@PathVariable("id") Long id,@ModelAttribute Equipement equipementModified ){
         if (equipementService.modifierEquipement(id,equipementModified).isEmpty()) {

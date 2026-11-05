@@ -1,6 +1,8 @@
 package altn72.tpfilrouge.controleur;
 
+import altn72.tpfilrouge.modele.Profil;
 import altn72.tpfilrouge.modele.Station;
+import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,7 @@ public class StationControleur {
         return "listeStations";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @GetMapping("/{id}")
     public String afficherUneStation(@PathVariable("id") Long id, Model model) {
         Station station = stationService.getUneStation(id)
@@ -41,12 +44,14 @@ public class StationControleur {
         return "detailsStation";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @GetMapping("/nouvelle")
     public String preparerAjoutStation(Model model) {
         model.addAttribute("nouvelleStation", new Station());
         return "nouvelleStation";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @DeleteMapping("/{id}")
     public String deleteStation(@PathVariable("id") Long id) {
         if (!stationService.supprimerStation(id)) {
@@ -57,12 +62,14 @@ public class StationControleur {
     }
 
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PostMapping("/creer")
     public String creerStation(@ModelAttribute("nouvelleStation") Station station){
         stationService.ajouterStation(station);
         return "redirect:/stations";
     }
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PostMapping("/importer")
     public String importer(@RequestParam("fichier") MultipartFile fichier,
                            RedirectAttributes redirect) {
@@ -81,6 +88,7 @@ public class StationControleur {
 
 
 
+    @ReserveAuProfil(Profil.RESPONSABLE)
     @PutMapping("/{id}")
     public String modifierStation(@PathVariable("id") Long id,@ModelAttribute Station stationModified ){
         if (stationService.modifierStation(id,stationModified).isEmpty()) {
