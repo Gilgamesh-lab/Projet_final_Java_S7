@@ -6,6 +6,7 @@ import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Profil;
 import altn72.tpfilrouge.securite.ReserveAuProfil;
 import altn72.tpfilrouge.service.EquipementService;
+import altn72.tpfilrouge.service.FragiliteService;
 import altn72.tpfilrouge.service.IncidentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,8 +29,8 @@ public class EquipementControleur {
     @Autowired
     private IncidentService incidentService;
 
-    private final static int seuilIncident = 3;
-    private final static String intervalleMaxIncident = "30 Day";
+    @Autowired
+    private FragiliteService fragiliteService;
 
 
     @GetMapping
@@ -51,12 +52,7 @@ public class EquipementControleur {
                 .orElseThrow(() -> new RessourceIntrouvableException(
                         "L'équipement dont l'id est " + id + " n'existe pas"));
         model.addAttribute("equipement", equipement);
-        if(incidentService.getNbIncidentIntervalle(seuilIncident, intervalleMaxIncident)){
-            model.addAttribute("fragile", true);
-        }
-        else{
-            model.addAttribute("fragile", false);
-        }
+        model.addAttribute("fragile", fragiliteService.estFragile(equipement.getId()));
         model.addAttribute("incidents", incidentService.getIncidentsEquipement(equipement.getId()));
         return "detailsEquipement";
     }

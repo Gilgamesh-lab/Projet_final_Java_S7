@@ -49,6 +49,9 @@ public class IncidentControleur {
     @Autowired
     private PrestataireService prestataireService;
 
+    @Autowired
+    private FragiliteService fragiliteService;
+
 
     @Operation(summary = "Récupérer la liste des incidents", description = "Renvoie la liste des incidents")
     @GetMapping("/api")
@@ -108,6 +111,7 @@ public class IncidentControleur {
         model.addAttribute("nbIncidentOrange", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.ORANGE)).count());
         model.addAttribute("nbIncidentPrisEnCharge", liste.stream().filter(incident -> indicateurService.calculer(incident).equals(Indicateur.PRIS_EN_CHARGE)).count());
         model.addAttribute("listePrestataire", prestataireService.getPrestataires());
+        model.addAttribute("equipementsFragiles", fragiliteService.getEquipementsFragiles());
         model.addAttribute("niveau", liste.stream().map(incident -> indicateurService.calculer(incident)).collect(Collectors.toList()));
         return "tableauDeBord";
     }
@@ -192,9 +196,14 @@ public class IncidentControleur {
     }
 
     @PostMapping("/nouveau")
-    public String creerIncident(@ModelAttribute("nouveauIncident") Incident incident, Model model) {
+    public String creerIncident(@ModelAttribute("nouveauIncident") Incident incident, Model model, RedirectAttributes redirect) {
         try {
             incidentService.declarerIncident(incident);
+            String message = "L'incident " + incident.getIdentifiant() + " a bien été déclaré.";
+            if(fragiliteService.estFragile(incident.getEquipement().getId())){
+                message += " Attention : cet équipement est fragile.";
+            }
+            redirect.addFlashAttribute("message", message);
             return "redirect:/";
         } catch (SaisieInvalideException e) {
             model.addAttribute("erreur", e.getMessage());

@@ -40,7 +40,15 @@ INSERT INTO incident (identifiant, equipement_id, description, date_ouverture, s
 -- Incidents résolus (dates de résolution distinctes pour l'ordre de l'historique)
 ('INC-008', 5, 'Écran éteint', NOW() - INTERVAL 10 DAY, 'RESOLU', 2, NOW() - INTERVAL 9 DAY),
 ('INC-009', 7, 'Distributeur sans monnaie rendue', NOW() - INTERVAL 6 DAY, 'RESOLU', 3, NOW() - INTERVAL 4 DAY),
-('INC-010', 2, 'Marche bloquée sur l''escalator', NOW() - INTERVAL 3 DAY, 'RESOLU', 1, NOW() - INTERVAL 1 DAY);
+('INC-010', 2, 'Marche bloquée sur l''escalator', NOW() - INTERVAL 3 DAY, 'RESOLU', 1, NOW() - INTERVAL 1 DAY),
+-- Équipement fragile : ASC-001 et ASC-002 ont 3 incidents sur 30 jours, DIS-001 et ECR-001 restent sous le seuil
+('INC-011', 1, 'Voyant de panne allumé', NOW() - INTERVAL 15 DAY, 'RESOLU', 1, NOW() - INTERVAL 14 DAY),
+('INC-012', 6, 'Bouton d''appel inopérant', NOW() - INTERVAL 25 DAY, 'RESOLU', 1, NOW() - INTERVAL 24 DAY),
+('INC-013', 6, 'Affichage de l''étage erroné', NOW() - INTERVAL 10 DAY, 'RESOLU', 1, NOW() - INTERVAL 8 DAY),
+('INC-014', 4, 'Monnayeur bloqué', NOW() - INTERVAL 20 DAY, 'RESOLU', 2, NOW() - INTERVAL 19 DAY),
+('INC-015', 4, 'Imprimante de tickets en panne', NOW() - INTERVAL 30 DAY - INTERVAL 1 MINUTE, 'RESOLU', 2, NOW() - INTERVAL 29 DAY),
+('INC-016', 5, 'Écran figé', NOW() - INTERVAL 45 DAY, 'RESOLU', 2, NOW() - INTERVAL 44 DAY),
+('INC-017', 5, 'Texte illisible sur l''écran', NOW() - INTERVAL 46 DAY, 'RESOLU', 2, NOW() - INTERVAL 45 DAY);
 
 -- Incident INC-010 volontairement non évalué pour démontrer F10
 INSERT INTO evaluation (incident_id, note, commentaire, date_evaluation)

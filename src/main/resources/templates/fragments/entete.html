@@ -12,6 +12,8 @@
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </th:block>
 
+<span th:fragment="badgeFragile" class="pastille equipement-fragile">Équipement fragile</span>
+
 <!--/* Bandeau commun à inclure en haut de chaque page : th:replace="~{fragments/entete :: entete}" */-->
 <nav th:fragment="entete" class="bandeau" aria-label="Navigation principale">
     <a class="marque" th:href="@{/}">
@@ -22,7 +24,7 @@
         Supervision
     </a>
     <ul class="nav-reseau">
-        <!--/* Lien masqué pour l'agent ; la route reste de toute façon protégée côté serveur */-->
+        <!--/* Lien masqué pour l'agent, la route reste de toute façon protégée côté serveur */-->
         <li th:if="${session.utilisateur?.responsable}"><a th:href="@{/incidents/tableau-de-bord}">Tableau de bord</a></li>
         <li th:if="${session.utilisateur?.responsable}"><a th:href="@{/statistiques}">Statistiques</a></li>
         <li><a th:href="@{/equipements}">Équipements</a></li>

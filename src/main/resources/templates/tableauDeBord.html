@@ -101,7 +101,12 @@
                     <div class="secondaire" th:text="${incident.description}">Porte de l'ascenseur</div>
                 </td>
                 <td th:text="${incident.equipement.station.nom}">Gare Centrale</td>
-                <td th:text="${incident.equipement.libelle}">Ascenseur quai A</td>
+                <td>
+                    <span th:text="${incident.equipement.libelle}">Ascenseur quai A</span>
+                    <th:block th:if="${equipementsFragiles.contains(incident.equipement.id)}">
+                        <div><span th:replace="~{fragments/entete :: badgeFragile}"></span></div>
+                    </th:block>
+                </td>
                 <td class="date" th:text="${#temporals.format(incident.dateOuverture, 'dd/MM/yyyy HH:mm')}">01/11/2026 10:00</td>
                 <td>
                     <form th:method="put" th:action="@{/incidents/changerPrestataire/{id}(id=${incident.id})}">

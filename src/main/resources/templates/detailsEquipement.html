@@ -15,6 +15,9 @@
             <span class="surtitre" th:text="${equipement.reference}">ASC-001</span>
             <h1 th:text="${equipement.libelle}">Ascenseur quai A</h1>
             <p th:text="${equipement.station.nom}">Gare Centrale</p>
+            <th:block th:if="${fragile}">
+                <span th:replace="~{fragments/entete :: badgeFragile}"></span>
+            </th:block>
         </div>
         <!--/* F4 : déclarer un incident sur cet équipement */-->
         <a th:href="@{/incidents/declarer}" class="btn btn-signal">Déclarer un incident</a>
@@ -23,7 +26,6 @@
     <!--/* F3 : informations de l'équipement */-->
     <div class="card">
         <div class="card-body">
-<<<<<<< Updated upstream
             <dl class="fiche">
                 <dt>Référence</dt>
                 <dd th:text="${equipement.reference}">ASC-001</dd>
@@ -37,22 +39,6 @@
                           th:classappend="'etat-' + ${#strings.toLowerCase(equipement.etat.name())}"
                           th:text="${#strings.replace(equipement.etat.libelle, '_', ' ')}">En panne</span>
                 </dd>
-=======
-            <dl class="row mb-0">
-                <dt class="col-sm-3">Id</dt>
-                <dd class="col-sm-9">[[${equipement.id}]]</dd>
-                <dt class="col-sm-3">Référence</dt>
-                <dd class="col-sm-9">[[${equipement.reference}]]</dd>
-                <dt class="col-sm-3">Libelle</dt>
-                <dd class="col-sm-9">[[${equipement.libelle}]]</dd>
-                <dt class="col-sm-3">Type</dt>
-                <dd class="col-sm-9">[[${equipement.type}]]</dd>
-                <dt class="col-sm-3">Station</dt>
-                <dd class="col-sm-9">[[${equipement.station.nom}]]</dd>
-                <dt class="col-sm-3">État</dt>
-                <dd class="col-sm-9"><span class="badge bg-danger">[[${equipement.etat}]]</span></dd>
-                <dt class="col-sm-3" th:if="${fragile}">Cet équipement est fragile</dt>
->>>>>>> Stashed changes
             </dl>
         </div>
     </div>

@@ -60,10 +60,6 @@ public class IncidentService {
         return incidentRepository.save(incident);
     }
 
-    public boolean getNbIncidentIntervalle(int equipementId, String intervalle) {
-        return incidentRepository.getNbIncidentIntervalle(equipementId, intervalle);
-    }
-
     @Transactional
     public void modifierIncident(Long idIncident, Incident incidentModified) {
        if(incidentModified != null){

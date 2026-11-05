@@ -323,6 +323,7 @@ a { color: var(--bleu); }
 .niveau-rouge, .etat-hors_service { background: var(--rouge-fond); color: var(--rouge); }
 .niveau-orange, .etat-en_panne { background: var(--orange-fond); color: var(--orange); }
 .niveau-vert, .etat-en_service, .statut-resolu { background: var(--vert-fond); color: var(--vert); }
+.equipement-fragile { background: var(--encre); color: #fff; }
 .niveau-pris_en_charge, .statut-en_cours { background: var(--bleu-fond); color: var(--bleu); }
 .statut-nouveau { background: var(--gris-fond); color: var(--texte); }
 

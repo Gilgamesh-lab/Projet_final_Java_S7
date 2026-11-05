@@ -18,6 +18,8 @@
         </div>
     </header>
 
+    <div th:if="${message}" class="alert alert-success" role="status" th:text="${message}"></div>
+
     <div class="accueil-grille">
         <a class="arret ligne-rouge" th:if="${session.utilisateur?.responsable}" th:href="@{/incidents/tableau-de-bord}">
             <strong>Tableau de bord</strong>
