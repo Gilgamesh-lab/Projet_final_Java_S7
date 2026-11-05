@@ -1,17 +1,50 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Accueil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <th:block th:replace="~{fragments/entete :: ressources}"></th:block>
 </head>
 <body>
 
 <nav th:replace="~{fragments/entete :: entete}"></nav>
 
-<div class="container">
-    <h1>Accueil</h1>
-</div>
+<main class="container contenu">
+    <header class="entete-page">
+        <div>
+            <span class="surtitre">Accueil</span>
+            <h1>Bonjour <span th:text="${session.utilisateur?.prenom}">Camille</span></h1>
+            <p>Où souhaitez-vous aller ?</p>
+        </div>
+    </header>
+
+    <div class="accueil-grille">
+        <a class="arret ligne-rouge" th:if="${session.utilisateur?.responsable}" th:href="@{/incidents/tableau-de-bord}">
+            <strong>Tableau de bord</strong>
+            <span>Les incidents actifs et leur niveau d'attention.</span>
+        </a>
+        <a class="arret ligne-bleue" th:if="${session.utilisateur?.responsable}" th:href="@{/statistiques}">
+            <strong>Statistiques</strong>
+            <span>Répartition des incidents et notes des prestataires.</span>
+        </a>
+        <a class="arret ligne-signal" th:href="@{/incidents/declarer}">
+            <strong>Déclarer un incident</strong>
+            <span>Signaler une panne sur un équipement.</span>
+        </a>
+        <a class="arret ligne-orange" th:href="@{/equipements}">
+            <strong>Équipements</strong>
+            <span>Les équipements de chaque station et leur état.</span>
+        </a>
+        <a class="arret ligne-verte" th:href="@{/incidents/historique}">
+            <strong>Historique</strong>
+            <span>Les incidents résolus, du plus récent au plus ancien.</span>
+        </a>
+        <a class="arret ligne-encre" th:href="@{/stations}">
+            <strong>Stations</strong>
+            <span>La liste des stations du réseau.</span>
+        </a>
+    </div>
+</main>
 
 </body>
 </html>

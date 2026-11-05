@@ -1,59 +1,68 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Liste des stations</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <th:block th:replace="~{fragments/entete :: ressources}"></th:block>
 </head>
 <body>
 
 <div th:replace="~{fragments/entete :: entete}"></div>
 
-<div class="container">
+<main class="container-xl contenu">
+    <header class="entete-page">
+        <div>
+            <span class="surtitre">Réseau</span>
+            <h1>Stations</h1>
+            <p>Les stations du réseau.</p>
+        </div>
+        <a th:if="${session.utilisateur?.responsable}" th:href="@{/stations/nouvelle}" class="btn btn-primary">Ajouter une station</a>
+    </header>
 
-    <h1>Liste des stations</h1>
+    <div th:if="${message}" class="alert alert-success" role="status" th:text="${message}"></div>
+    <div th:if="${erreur}" class="alert alert-danger" role="alert" th:text="${erreur}"></div>
 
-    <table class="table table-striped table-hover align-middle">
-        <thead>
-        <tr>
-            <th scope="col">id</th>
-            <th scope="col">nom</th>
-            <th scope="col">identifiant</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="station : ${stations}">
-            <td th:text="${station.id}"></td>
-            <td th:text="${station.nom}"></td>
-            <td th:text="${station.identifiant}"></td>
-            <td>
-                 <form th:action="@{/stations/{id}(id=${station.id})}" style="display:inline;">
-                    <button class="btn btn-info btn-sm">Modifiez</button>
-                </form>
+    <div class="panneau panneau-table">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Identifiant</th>
+                <th scope="col">Nom</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="station : ${stations}">
+                <td class="reference" th:text="${station.identifiant}">STA-001</td>
+                <td th:text="${station.nom}">Gare Centrale</td>
+                <td>
+                    <div class="actions">
+                        <a th:href="@{/equipements(station=${station.nom})}" class="btn btn-outline-secondary btn-sm">Équipements</a>
+                        <a th:if="${session.utilisateur?.responsable}" th:href="@{/stations/{id}(id=${station.id})}" class="btn btn-outline-secondary btn-sm">Modifier</a>
+                        <form th:if="${session.utilisateur?.responsable}"
+                              th:action="@{/stations/{id}(id=${station.id})}" th:method="DELETE"
+                              onsubmit="return confirm('Supprimer cette station ?')">
+                            <button class="btn btn-outline-danger btn-sm">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(stations)}">
+                <td colspan="3" class="vide">Aucune station à afficher.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-               <form th:action="@{/stations/{id}(id=${station.id})}" th:method="DELETE" style="display:inline;">
-                    <button class="btn btn-warning btn-sm">Supprimez</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(stations)}">
-            <td colspan="8" class="text-center text-muted">Aucune station à afficher.</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <form th:action="@{/stations/nouvelle}">
-        <button class="btn btn-primary">Ajoutez</button>
-    </form>
-    <form th:method="post" th:action="@{/stations/importer}" method="post" enctype="multipart/form-data">
-        <input type="file" name="fichier" accept=".json,application/json"
-               class="form-control w-50 mb-3" onchange="this.form.submit()" required>
+    <form th:if="${session.utilisateur?.responsable}" class="panneau filtres mt-4 mb-0"
+          th:action="@{/stations/importer}" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="fichier">Importer des stations (fichier JSON)</label>
+            <input type="file" id="fichier" name="fichier" accept=".json,application/json" class="form-control" required>
+        </div>
         <button type="submit" class="btn btn-primary">Importer</button>
     </form>
+</main>
 
-    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-    <div th:if="${erreur}" class="alert alert-danger" th:text="${erreur}"></div>
-
-</div>
 </body>
 </html>
