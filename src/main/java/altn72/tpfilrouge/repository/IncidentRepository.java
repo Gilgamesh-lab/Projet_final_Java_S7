@@ -30,6 +30,9 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
             nativeQuery = true)
     List<NombreParStation> compterActifsParStation();
 
+    @Query("select count(*) from Incident i where i.equipement = ?1 and (i.dateOuverture + INTERVAL(?2)) > SYSTIMESTAMP")
+    boolean getNbIncidentIntervalle(int equipement_id, String intervalle);
+
 
 
     interface NombreParStation {

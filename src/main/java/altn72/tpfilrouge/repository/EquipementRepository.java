@@ -18,6 +18,7 @@ public interface EquipementRepository extends JpaRepository<Equipement, Long> {
     @Modifying
     @Query("update Equipement u set u.reference = ?1, u.libelle = ?2, u.type = ?3, u.etat = ?4, u.station = ?5 where u.id = ?6")
     void setEquipementInfoById(String reference, String libelle, String type, Etat etat, Station station, Long idEquipement);
-    // , , ,,
+
+
 }
 

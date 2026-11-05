@@ -1,5 +1,6 @@
 package altn72.tpfilrouge.service;
 
+import altn72.tpfilrouge.modele.Equipement;
 import altn72.tpfilrouge.modele.Incident;
 import altn72.tpfilrouge.modele.Statut;
 import altn72.tpfilrouge.repository.IncidentRepository;
@@ -49,6 +50,10 @@ public class IncidentService {
     public Incident ajouterIncident(Incident incident) {
         incident.setId(null);
         return incidentRepository.save(incident);
+    }
+
+    public boolean getNbIncidentIntervalle(int equipementId, String intervalle) {
+        return incidentRepository.getNbIncidentIntervalle(equipementId, intervalle);
     }
 
     @Transactional

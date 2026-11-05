@@ -1,24 +1,43 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Fiche équipement</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <th:block th:replace="~{fragments/entete :: ressources}"></th:block>
 </head>
 <body>
 
 <div th:replace="~{fragments/entete :: entete}"></div>
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Ascenseur quai A</h1>
+<main class="container-xl contenu">
+    <header class="entete-page">
+        <div>
+            <span class="surtitre" th:text="${equipement.reference}">ASC-001</span>
+            <h1 th:text="${equipement.libelle}">Ascenseur quai A</h1>
+            <p th:text="${equipement.station.nom}">Gare Centrale</p>
+        </div>
         <!--/* F4 : déclarer un incident sur cet équipement */-->
-        <a href="#" class="btn btn-danger">Déclarer un incident</a>
-    </div>
+        <a th:href="@{/incidents/declarer}" class="btn btn-signal">Déclarer un incident</a>
+    </header>
 
     <!--/* F3 : informations de l'équipement */-->
-    <div class="card mb-4">
+    <div class="card">
         <div class="card-body">
+<<<<<<< Updated upstream
+            <dl class="fiche">
+                <dt>Référence</dt>
+                <dd th:text="${equipement.reference}">ASC-001</dd>
+                <dt>Type</dt>
+                <dd th:text="${equipement.type}">Ascenseur</dd>
+                <dt>Station</dt>
+                <dd th:text="${equipement.station.nom}">Gare Centrale</dd>
+                <dt>État</dt>
+                <dd>
+                    <span class="pastille"
+                          th:classappend="'etat-' + ${#strings.toLowerCase(equipement.etat.name())}"
+                          th:text="${#strings.replace(equipement.etat.libelle, '_', ' ')}">En panne</span>
+                </dd>
+=======
             <dl class="row mb-0">
                 <dt class="col-sm-3">Id</dt>
                 <dd class="col-sm-9">[[${equipement.id}]]</dd>
@@ -32,44 +51,58 @@
                 <dd class="col-sm-9">[[${equipement.station.nom}]]</dd>
                 <dt class="col-sm-3">État</dt>
                 <dd class="col-sm-9"><span class="badge bg-danger">[[${equipement.etat}]]</span></dd>
+                <dt class="col-sm-3" th:if="${fragile}">Cet équipement est fragile</dt>
+>>>>>>> Stashed changes
             </dl>
         </div>
     </div>
 
-    <!--/* F3 : incidents en cours et passés, triés par date d'ouverture (RG7) */-->
-    <h2 class="h5">Incidents</h2>
-    <table class="table table-striped table-hover align-middle">
-        <thead>
-        <tr>
-            <th>Ouverture</th>
-            <th>Description</th>
-            <th>Statut</th>
-            <th>Prestataire</th>
-            <th>Résolution</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="incident: ${incidents}">
-            <td th:text="${incident.id}" />
-            <td th:text="${incident.dateOuverture}" />
-            <td th:text="${incident.statut}" />
-            <td th:text="${incident.prestataire?.nom}" />
-            <td th:text="${incident.dateResolution}" />
-            <td>
-                <form  th:action="@{/incidents/{id}(id=${incident.id})}"   th:method="GET" style="display:inline;">
-                    <button class="btn btn-info btn-sm">Détails</button>
-                </form>
-
-                <form th:action="@{/incidents/{id}(id=${incident.id})}" th:method="DELETE" style="display:inline;">
-                    <button class="btn btn-warning btn-sm">Supprimez</button>
-                </form>
-            </td>
-            <br>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <!--/* F3 : incidents en cours et passés */-->
+    <h2 class="titre-section">Incidents</h2>
+    <div class="panneau panneau-table">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Incident</th>
+                <th>Ouverture</th>
+                <th>Statut</th>
+                <th>Prestataire</th>
+                <th>Résolution</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="incident: ${incidents}">
+                <td>
+                    <a class="reference" th:href="@{/incidents/{id}(id=${incident.id})}" th:text="${incident.identifiant}">INC-001</a>
+                    <div class="secondaire" th:text="${incident.description}">Ascenseur bloqué</div>
+                </td>
+                <td class="date" th:text="${#temporals.format(incident.dateOuverture, 'dd/MM/yyyy HH:mm')}">01/11/2026 10:00</td>
+                <td>
+                    <span class="pastille"
+                          th:classappend="'statut-' + ${#strings.toLowerCase(incident.statut.name())}"
+                          th:text="${incident.statut.libelle}">Nouveau</span>
+                </td>
+                <td th:text="${incident.prestataire?.nom} ?: '—'">Ascenseurs Dupont</td>
+                <td class="date" th:text="${incident.dateResolution != null} ? ${#temporals.format(incident.dateResolution, 'dd/MM/yyyy HH:mm')} : '—'">—</td>
+                <td>
+                    <div class="actions">
+                        <a th:href="@{/incidents/{id}(id=${incident.id})}" class="btn btn-outline-secondary btn-sm">Détails</a>
+                        <form th:if="${session.utilisateur?.responsable}"
+                              th:action="@{/incidents/{id}(id=${incident.id})}" th:method="DELETE"
+                              onsubmit="return confirm('Supprimer cet incident ?')">
+                            <button class="btn btn-outline-danger btn-sm">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(incidents)}">
+                <td colspan="6" class="vide">Aucun incident sur cet équipement.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
 
 </body>
 </html>

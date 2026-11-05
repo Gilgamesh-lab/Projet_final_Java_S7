@@ -1,5 +1,6 @@
 package altn72.tpfilrouge.modele;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ public class Evaluation {
     private Long id;
 
     // Une seule évaluation par incident (RG8)
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "incident_id", nullable = false, unique = true)
     private Incident incident;
